@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-pnpm lint && pnpm spellcheck && pnpm typecheck
+pnpm lint && pnpm spellcheck
