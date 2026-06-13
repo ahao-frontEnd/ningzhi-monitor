@@ -7,6 +7,12 @@ import importSort from 'eslint-plugin-simple-import-sort'
 
 import tsEslint from 'typescript-eslint'
 
+const ignores = [
+  'dist', 'build', '**/*.js', '**/*.mjs',
+  '**/*.d.ts', 'eslint.config.js',
+  'commitlint.config.js', 'suites/**/*'
+]
+
 const frontendMonitorConfig = {
   files: ['apps/frontend/monitor/**/*.{ts,tsx}'],
   languageOptions: {
@@ -48,14 +54,15 @@ const backendMonitorConfig = {
 
 export default tsEslint.config(
   {
-    ignores: ['dist', 'eslint.config.js', 'commitlint.config.js', 'suites/**/*'],
+    ignores,
     extends: [eslint.configs.recommended, ...tsEslint.configs.recommended],
     plugins: {
       prettier: eslintPrettier,
       'simple-import-sort': importSort
     },
     rules: {
-      // 'prettier/prettier': 'warn' // 表示 Prettier 的格式问题将被视为 ESLint 错误，这样可以确保代码始终符合 Prettier 的格式规范。
+      'prettier/prettier': 'error', // 表示 Prettier 的格式问题将被视为 ESLint 错误，这样可以确保代码始终符合 Prettier 的格式规范。
+      'simple-import-sort/imports': 'error',
     }
   },
   frontendMonitorConfig,

@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true, // 生成 .d.ts 文件
+    "declarationMap": true, // 生成 .d.ts.map 文件，便于调试
+    "emitDeclarationOnly": true, // 只生成声明文件，不生成 JavaScript 文件
+    "rootDir": ".",
+    "outDir": "./build/types" // 输出目录
+  }
+}

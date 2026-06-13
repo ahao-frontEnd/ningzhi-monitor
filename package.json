@@ -1,57 +1,56 @@
 {
-    "name": "ningzhi-monitor",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "type": "module",
-    "scripts": {
-        "lint": "eslint",
-        "spellcheck": "cspell lint --dot --gitignore --color --cache --show-suggestions \"(packages|apps)/**/*.@(html|js|cjs|mjs|ts|tsx|css|scss|md)\"",
-        "typecheck": "tsc --noEmit",
-        "commit": "git-cz",
-        "prepare": "husky"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "config": {
-        "commitizen": {
-            "path": "node_modules/cz-git"
-        }
-    },
-    "lint-staged": {
-        "*.{md,json}": [
-            "prettier --cache --write --no-error-on-unmatched-pattern"
-        ],
-        "*.{css,less}": [
-            "stylelint --fix",
-            "prettier --cache --write"
-        ],
-        "*.{js,jsx}": [
-            "eslint --fix",
-            "prettier --cache --write"
-        ],
-        "*.{ts,tsx}": [
-            "eslint --fix",
-            "prettier --cache --parser=typescript --write"
-        ]
-    },
-    "devDependencies": {
-        "prettier": "3.8.4",
-        "@eslint/js": "10.0.1",
-        "globals": "17.6.0",
-        "typescript": "6.0.3",
-        "typescript-eslint": "8.61.0",
-        "eslint-plugin-react-refresh": "0.5.2",
-        "eslint-plugin-react-hooks": "7.1.1",
-        "eslint-plugin-prettier": "5.5.6",
-        "eslint-plugin-simple-import-sort": "13.0.0",
-        "cspell": "10.0.1",
-        "@commitlint/cli": "21.0.2",
-        "@commitlint/config-conventional": "21.0.2",
-        "commitizen": "4.3.2",
-        "cz-git": "1.13.1",
-        "lint-staged": "17.0.7",
-        "husky": "9.1.7"
+  "name": "ningzhi-monitor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint",
+    "spellcheck": "cspell lint --dot --gitignore --color --cache --show-suggestions \"(packages|apps)/**/*.@(html|js|cjs|mjs|ts|tsx|css|scss|md)\"",
+    "commit": "git-cz",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-git"
     }
+  },
+  "lint-staged": {
+    "*.{md,json}": [
+      "prettier --cache --write --no-error-on-unmatched-pattern"
+    ],
+    "*.{css,less}": [
+      "stylelint --fix",
+      "prettier --cache --write"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --cache --write"
+    ],
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --cache --parser=typescript --write"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "22.7.5",
+    "prettier": "3.8.4",
+    "@eslint/js": "10.0.1",
+    "globals": "17.6.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.61.0",
+    "eslint-plugin-react-refresh": "0.5.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-prettier": "5.5.6",
+    "eslint-plugin-simple-import-sort": "13.0.0",
+    "cspell": "10.0.1",
+    "@commitlint/cli": "21.0.2",
+    "@commitlint/config-conventional": "21.0.2",
+    "commitizen": "4.3.2",
+    "cz-git": "1.13.1",
+    "lint-staged": "17.0.7",
+    "husky": "9.1.7"
+  }
 }
