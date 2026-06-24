@@ -3,7 +3,18 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "packageManager": "pnpm@10.32.1",
   "scripts": {
+    "build:watch": "turbo build:watch",
+    "build": "turbo build",
+    "clean": "run-s clean:build clean:caches",
+    "clean:all": "run-s clean:build clean:caches clean:deps",
+    "clean:build": "pnpm --filter @ningzhi/* clean",
+    "clean:caches": "rimraf .turbo/cache **/*/.turbo",
+    "clean:deps": "rimraf node_modules **/*/node_modules",
+    "dev:server:dsn": "pnpm --filter @ningzhi/monitor-dsn-server start:dev",
+    "dev:server:monitor": "pnpm --filter @ningzhi/monitor-server start:dev",
+    "dev:client:monitor": "pnpm --filter @ningzhi/monitor-client dev",
     "lint": "eslint",
     "spellcheck": "cspell lint --dot --gitignore --color --cache --show-suggestions \"(packages|apps)/**/*.@(html|js|cjs|mjs|ts|tsx|css|scss|md)\"",
     "commit": "git-cz",
@@ -35,7 +46,7 @@
     ]
   },
   "devDependencies": {
-    "@types/node": "22.7.5",
+    "@types/node": "25.9.3",
     "prettier": "3.8.4",
     "@eslint/js": "10.0.1",
     "globals": "17.6.0",
@@ -51,6 +62,10 @@
     "commitizen": "4.3.2",
     "cz-git": "1.13.1",
     "lint-staged": "17.0.7",
-    "husky": "9.1.7"
+    "husky": "9.1.7",
+    "tsup": "8.5.1",
+    "turbo": "2.9.18",
+    "rimraf": "6.1.3",
+    "npm-run-all2": "9.0.2"
   }
 }

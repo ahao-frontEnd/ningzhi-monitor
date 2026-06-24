@@ -25,7 +25,8 @@
     "build": "pnpm build:transpile && pnpm build:types",
     "build:transpile": "tsup",
     "build:types": "tsc -p tsconfig.types.json",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf build"
   },
   "description": "",
   "keywords": [],
@@ -33,9 +34,5 @@
   "license": "ISC",
   "dependencies": {
     "@ningzhi/monitor-sdk-core": "workspace:*"
-  },
-  "devDependencies": {
-    "tsup": "8.5.1",
-    "typescript": "6.0.3"
   }
 }
