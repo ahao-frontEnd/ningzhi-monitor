@@ -1,0 +1,79 @@
+// 这个文件是开发容器的配置文件，用于在 VS Code 中运行开发环境的配置
+{
+  // ============ 基础配置 ============
+  // 开发容器的名称，显示在 VS Code 左下角
+  "name": "Ningzhi Monitor Development Environment",
+
+  // ============ Docker Compose 配置 ============
+  // 指定使用的 docker-compose 文件
+  // VS Code 会根据这个文件启动所需的容器
+  "dockerComposeFile": ["docker-compose.yml"],
+
+  // 指定要在哪个服务中运行开发环境
+  // 注意：这个服务需要在 docker-compose.yml 中定义
+  "service": "ningzhi-monitor",
+
+  // 容器内的工作目录路径
+  // 你的项目代码会挂载到这个目录
+  "workspaceFolder": "/workspace",
+
+  // ============ 容器启动后执行的命令 ============
+  // 容器创建后自动运行 pnpm i 安装依赖
+  "postCreateCommand": "pnpm i",
+
+  // 以 root 用户运行容器（开发环境方便调试）
+  "remoteUser": "root",
+
+  // ============ 端口标签配置 ============
+  // 给每个端口起个友好的名字，方便在 VS Code "端口"面板中识别
+  "portsAttributes": {
+    "9092": {
+      "label": "Kafka Broker" // Kafka 消息队列端口
+    },
+    "9093": {
+      "label": "Kafka Controller" // Kafka 控制器端口
+    },
+    "8123": {
+      "label": "ClickHouse HTTP" // ClickHouse HTTP 接口
+    },
+    "9000": {
+      "label": "ClickHouse Native" // ClickHouse 原生接口
+    },
+    "5432": {
+      "label": "PostgreSQL" // PostgreSQL 数据库端口
+    },
+    "6379": {
+      "label": "Redis" // Redis 缓存端口
+    }
+  },
+
+  // ============ 环境变量配置 ============
+  // 这些环境变量会注入到开发容器中
+  // 程序可以通过 process.env.XXX 读取这些值
+  "remoteEnv": {
+    "CLICKHOUSE_USER": "default", // ClickHouse 用户名
+    "CLICKHOUSE_PASSWORD": "ningzhiClickhouse", // ClickHouse 密码
+    "CLICKHOUSE_DATABASE": "default", // ClickHouse 默认数据库
+    "POSTGRESQL_USERNAME": "postgres", // PostgreSQL 用户名
+    "REDIS_PASSWORD": "ningzhiRedis" // Redis 密码
+  },
+
+  // ============ 关闭行为配置 ============
+  // "none": 关闭 VS Code 窗口时不停止容器
+  // 其他选项: "stopCompose"（停止所有服务）
+  "shutdownAction": "none",
+
+  // ============ 启动服务列表 ============
+  // 指定要启动哪些服务
+  // 这些服务名称需要与 docker-compose.yml 中的服务名一致
+  "runServices": [
+    "ningzhi-monitor-kafka", // Kafka 消息队列
+    "ningzhi-monitor-clickhouse", // ClickHouse 分析数据库
+    "ningzhi-monitor-postgresql", // PostgreSQL 关系数据库
+    "ningzhi-monitor-redis" // Redis 缓存
+  ],
+
+  // ============ 端口转发配置 ============
+  // 自动转发这些端口到本地，让本地程序可以访问容器内的服务
+  "forwardPorts": [9092, 9093, 8123, 9000, 5432, 6379]
+}

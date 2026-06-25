@@ -1,0 +1,80 @@
+# Docker Compose 配置文件
+# 作用：用一条命令同时启动多个 Docker 容器（服务）
+# version '3' 是目前最常用的版本格式
+
+version: '3'
+
+services:
+    # ============ Kafka 消息队列服务 ============
+    # Kafka 用于实时处理和传输大量数据流，类似"数据管道"
+    ningzhi-monitor-kafka:
+        image: apache/kafka                   # 使用官方 Kafka 镜像
+        container_name: ningzhi-monitor-kafka # 给容器起个名字，方便管理
+        ports:                                 # 端口映射：左边是宿主机端口，右边是容器内部端口
+            - '9092:9092'                      # 9092: 用于程序连接 Kafka
+            - '9093:9093'                      # 9093: Kafka 控制器端口（集群内部使用）
+        environment:                           # 环境变量：配置 Kafka 的运行参数
+            - KAFKA_CFG_PROCESS_ROLES=broker,controller  # 当前节点同时担任 broker（存储消息）和 controller（管理集群）
+            - KAFKA_CFG_NODE_ID=1              # 节点 ID，集群中唯一
+            - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093  # 控制器投票成员列表
+            - KAFKA_CFG_LISTENERS=PLAINTEXT://localhost:9092,CONTROLLER://localhost:9093  # 监听地址配置
+            - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT  # 监听器安全协议
+            - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT  # 集群内部通信使用的监听器名称
+            - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER  # 控制器使用的监听器名称
+            - ALLOW_PLAINTEXT_LISTENER=yes      # 允许不使用密码连接（本地开发环境使用）
+        # volumes:                              # 数据持久化：把容器内数据保存到宿主机
+        #     - ./kafka_data:/bitnami/kafka/data  # 注释掉的是数据持久化配置，启用后可防止数据丢失
+
+    # ============ ClickHouse 分析型数据库 ============
+    # ClickHouse 用于快速分析大量数据，适合做数据仓库和实时分析
+    ningzhi-monitor-clickhouse:
+        image: clickhouse:25.10               # 使用官方 ClickHouse 镜像，版本 25.10
+        container_name: ningzhi-monitor-clickhouse
+        ports:
+            - '8123:8123'                      # 8123: HTTP 接口，用于 Web UI 和 HTTP 请求
+            - '9000:9000'                      # 9000: Native 接口，用于客户端工具连接
+        environment:                           # 环境变量配置
+            - CLICKHOUSE_USER=default          # 默认用户名
+            - CLICKHOUSE_PASSWORD=ningzhiClickhouse  # 密码（建议生产环境使用更复杂的密码）
+            - CLICKHOUSE_DATABASE=default      # 默认数据库
+        # volumes:
+        #     - ./clickhouse_data:/bitnami/clickhouse  # 数据持久化配置
+
+    # ============ PostgreSQL 关系型数据库 ============
+    # PostgreSQL 是一个功能强大的开源关系型数据库，适合存储结构化数据
+    ningzhi-monitor-postgresql:
+        image:  postgres:18.1                  # 使用 PostgreSQL 镜像，版本 18.1
+        container_name: ningzhi-monitor-postgresql
+        ports:
+            - '5432:5432'                      # 5432: PostgreSQL 默认端口
+        environment:
+            - POSTGRESQL_USERNAME=postgres    # 用户名
+            - ALLOW_EMPTY_PASSWORD=yes        # 允许空密码（本地开发环境）
+            - POSTGRESQL_DATABASE=postgres     # 默认数据库名
+            # 下面是另一套用户名密码配置示例（如需使用可取消注释）
+            # - POSTGRESQL_USERNAME=ningzhi
+            # - POSTGRESQL_PASSWORD=ningzhiPostgresql
+            # - POSTGRESQL_DATABASE=postgres
+        volumes:
+            - ./postgresql_data:/bitnami/postgresql  # 数据持久化：数据库文件保存在宿主机
+
+    # ============ Redis 内存数据库 ============
+    # Redis 是一个高性能的键值存储，常用作缓存或消息队列
+    ningzhi-monitor-redis:
+        image:  redis:8.4                     # 使用官方 Redis 镜像，版本 8.4
+        container_name: ningzhi-monitor-redis
+        ports:
+            - '6379:6379'                      # 6379: Redis 默认端口
+        environment:
+            - REDIS_PASSWORD=ningzhiRedis      # 设置密码（生产环境建议启用）
+        # volumes:
+        #     - ./redis_data:/bitnami/redis    # 数据持久化配置
+
+# ============ 网络配置 ============
+# 定义一个 Docker 网络，让这些容器可以互相通信
+# 原理是：每个容器都有一个默认的网络，这里定义了一个自定义的网络，所有容器都可以通过这个网络相互通信
+# 例如：ningzhi-monitor-kafka 可以通过 ningzhi-monitor-clickhouse-network 访问 ningzhi-monitor-clickhouse 容器的 ClickHouse 服务
+# 也可以通过 ningzhi-monitor-clickhouse-network 访问 ningzhi-monitor-kafka 容器的 Kafka 服务
+networks:
+    default:
+        name: ningzhi-monitor-kafka-clickhouse-network  # 网络名称

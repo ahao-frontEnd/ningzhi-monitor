@@ -1,4 +1,6 @@
+bitnami
 breakline
+clickhouse
 eslintcache
 gitee
 Kamil
