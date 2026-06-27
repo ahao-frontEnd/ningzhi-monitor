@@ -6,12 +6,8 @@ import { Queue } from 'bull'
 export class AudioController {
   constructor(@InjectQueue('audio') private readonly audioQueue: Queue) {}
 
-  // transcode 是指将音频文件转换为其他格式， 例如将 MP3 转换为 AAC
-  // 当收到 transcode 任务时调用， 用于处理 transcode 任务
   @Post('transcode')
   async transcode() {
-    // 添加 transcode 任务到队列， �设置延迟时间为 1 秒
-    // 这里假设 transcode 任务需要 1 秒的时间来处理
     await this.audioQueue.add(
       'transcode',
       {

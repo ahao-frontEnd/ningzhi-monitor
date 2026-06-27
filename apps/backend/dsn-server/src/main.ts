@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { AppModule } from './app.module'
-import { HttpExceptionFilter } from './common/filters/http-exception.filter'
+import { HttpExceptionFilter } from './fundamentals/common/filters/http-exception.filter'
 
 // import { LoggingInterceptor } from './common/interceptors/logging.interceptor'
 // import { ValidationPipe } from './common/pipes/validation.pipe'
@@ -36,6 +36,8 @@ async function bootstrap() {
   // 配置 swagger 文档
   SwaggerModule.setup('ningzhi/doc', app, swaggerDocument)
 
+  // 启动所有微服务
+  await app.startAllMicroservices()
   await app.listen(8080)
 }
 bootstrap()

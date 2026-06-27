@@ -6,15 +6,11 @@ import { Job } from 'bull'
 export class AudioProcessor {
   private readonly logger = new Logger(AudioProcessor.name)
 
-  // 当队列有任务时调用， 用于处理任务
-  // OnQueueActive 是 Bull 提供的装饰器， 用于在队列有任务时调用
   @OnQueueActive()
   onActive(job: Job) {
     this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}...`)
   }
 
-  // transcode 是指将音频文件转换为其他格式， 例如将 MP3 转换为 AAC
-  // 当收到 transcode 任务时调用， 用于处理 transcode 任务
   @Process('transcode')
   handleTranscode(job: Job) {
     this.logger.debug('Start transcoding...')

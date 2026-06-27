@@ -6,7 +6,7 @@ version: '3'
 
 services:
     # ============ Kafka 消息队列服务 ============
-    # Kafka 用于实时处理和传输大量数据流，类似"数据管道"
+    # Kafka 用于实时处理和传输大量数据流，类似"数据管道"，用于构建实时数据处理系统。
     ningzhi-monitor-kafka:
         image: apache/kafka                   # 使用官方 Kafka 镜像
         container_name: ningzhi-monitor-kafka # 给容器起个名字，方便管理
@@ -14,14 +14,18 @@ services:
             - '9092:9092'                      # 9092: 用于程序连接 Kafka
             - '9093:9093'                      # 9093: Kafka 控制器端口（集群内部使用）
         environment:                           # 环境变量：配置 Kafka 的运行参数
-            - KAFKA_CFG_PROCESS_ROLES=broker,controller  # 当前节点同时担任 broker（存储消息）和 controller（管理集群）
-            - KAFKA_CFG_NODE_ID=1              # 节点 ID，集群中唯一
-            - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093  # 控制器投票成员列表
-            - KAFKA_CFG_LISTENERS=PLAINTEXT://localhost:9092,CONTROLLER://localhost:9093  # 监听地址配置
-            - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT  # 监听器安全协议
-            - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT  # 集群内部通信使用的监听器名称
-            - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER  # 控制器使用的监听器名称
-            - ALLOW_PLAINTEXT_LISTENER=yes      # 允许不使用密码连接（本地开发环境使用）
+            - KAFKA_CFG_PROCESS_ROLES=broker,controller  # 角色：broker 是消息队列，controller 是集群控制器
+            - KAFKA_CFG_NODE_ID=1                    # 节点 ID：每个 Kafka 节点都有一个唯一的 ID，用于集群管理
+            - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@ningzhi-monitor-kafka:9093  # 集群控制器：指定控制器节点的 ID 和端口
+            # 广播监听器：指定 Kafka 节点的监听地址和端口，用于外部连接
+            - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://ningzhi-monitor-kafka:9092,PLAINTEXT_HOST://localhost:9092  
+             # 监听器：指定 Kafka 节点的监听地址和端口，用于内部通信
+            - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29092 
+            # 监听器安全协议：指定每个监听器的协议，如 PLAINTEXT（明文协议用于加密）
+            - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT  
+            - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT  # 内部监听器：指定 Kafka 节点之间的通信监听器，如 PLAINTEXT（明文协议用于加密）
+            - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER  # 控制器监听器：指定 Kafka 控制器节点的监听器，如 CONTROLLER（控制器协议）
+            - ALLOW_PLAINTEXT_LISTENER=yes  # 允许明文监听器：指定是否允许明文协议（不建议生产环境使用）
         # volumes:                              # 数据持久化：把容器内数据保存到宿主机
         #     - ./kafka_data:/bitnami/kafka/data  # 注释掉的是数据持久化配置，启用后可防止数据丢失
 
@@ -51,10 +55,6 @@ services:
             - POSTGRESQL_USERNAME=postgres    # 用户名
             - ALLOW_EMPTY_PASSWORD=yes        # 允许空密码（本地开发环境）
             - POSTGRESQL_DATABASE=postgres     # 默认数据库名
-            # 下面是另一套用户名密码配置示例（如需使用可取消注释）
-            # - POSTGRESQL_USERNAME=ningzhi
-            # - POSTGRESQL_PASSWORD=ningzhiPostgresql
-            # - POSTGRESQL_DATABASE=postgres
         volumes:
             - ./postgresql_data:/bitnami/postgresql  # 数据持久化：数据库文件保存在宿主机
 
@@ -77,4 +77,5 @@ services:
 # 也可以通过 ningzhi-monitor-clickhouse-network 访问 ningzhi-monitor-kafka 容器的 Kafka 服务
 networks:
     default:
-        name: ningzhi-monitor-kafka-clickhouse-network  # 网络名称
+        name: ningzhi-monitor-network  # 网络名称
+        driver: bridge  # 网络驱动，这里使用桥接模式,让容器可以与宿主机上的容器之间可以相互通信
