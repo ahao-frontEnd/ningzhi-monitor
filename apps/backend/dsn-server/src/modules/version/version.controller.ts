@@ -12,7 +12,7 @@ export class VersionController {
   }
 
   @Get('tracking')
-  tracking(@Query() params: { key: string; value: string }): any {
+  tracking(@Query() params: { event_type: string; message: string }): any {
     return this.versionService.tracking(params)
   }
 

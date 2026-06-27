@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { AppModule } from './app.module'
-import { HttpExceptionFilter } from './common/filters/http-exception.filter'
+import { HttpExceptionFilter } from './fundamentals/common/filters/http-exception.filter'
 
 // import { LoggingInterceptor } from './common/interceptors/logging.interceptor'
 // import { ValidationPipe } from './common/pipes/validation.pipe'

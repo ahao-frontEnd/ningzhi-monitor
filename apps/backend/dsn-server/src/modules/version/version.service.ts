@@ -9,11 +9,11 @@ export class VersionService {
     return '1.0.0'
   }
 
-  async tracking(params: { key: string; value: string }): Promise<any> {
+  async tracking(params: { event_type: string; message: string }): Promise<any> {
     const res = await this.clickhouseClient.insert({
-      table: 'monitor_data',
+      table: 'base_monitor_storage',
       values: params, // 插入的参数
-      columns: ['key1', 'value1'], // 插入的列名
+      columns: ['event_type', 'message'], // 插入的列名
       format: 'JSONEachRow', // 每行一个 JSON 对象
     })
     Logger.log('Query Result ', JSON.stringify(res.summary))
@@ -27,10 +27,10 @@ export class VersionService {
     // FROM kafka_to_monitor_data
 
     // 从最终的 ClickHouse 表中查
-    const query = `SELECT * FROM default.monitor_data WHERE key1 = 'name'`
+    const query = `SELECT * FROM base_monitor_view`
     const res = await this.clickhouseClient.query({ query })
-    const result = await res.json()
-    Logger.log('Query result 123... ', JSON.stringify(result, null, 2))
-    return result.data
+    const queryResult = await res.json()
+    Logger.log('Query queryResult ', JSON.stringify(queryResult, null, 2))
+    return queryResult.data
   }
 }

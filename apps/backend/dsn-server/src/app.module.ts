@@ -20,7 +20,11 @@ import { VersionModule } from './modules/version/version.module'
     }),
     AuthModule,
     VersionModule,
-    ClickhouseModule.register({ url: 'http://localhost:8123' }),
+    ClickhouseModule.forRoot({
+      url: 'http://localhost:8123',
+      username: 'default',
+      password: 'ningzhiClickhouse',
+    }),
   ],
   providers: [],
 })

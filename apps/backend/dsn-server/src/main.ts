@@ -36,8 +36,6 @@ async function bootstrap() {
   // 配置 swagger 文档
   SwaggerModule.setup('ningzhi/doc', app, swaggerDocument)
 
-  // 启动所有微服务
-  await app.startAllMicroservices()
   await app.listen(8080)
 }
 bootstrap()

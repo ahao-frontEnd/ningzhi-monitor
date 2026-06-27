@@ -5,7 +5,7 @@ export default () => ({
     type: 'postgres',
     host: 'localhost',
     port: 5432,
-    database: 'ningzhi-monitor-dsn',
+    database: 'postgres',
     username: 'postgres',
     password: 'postgres',
     // 实体是数据库表的映射类， 用于定义数据库表的字段和关系

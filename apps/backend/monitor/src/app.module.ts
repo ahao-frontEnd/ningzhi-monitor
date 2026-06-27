@@ -2,8 +2,9 @@ import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { LoggerMiddleware } from './common/middleware/logger.middleware'
 import databaseConfig from './config/database'
+import { ClickhouseModule } from './fundamentals/clickhouse/clickhouse.module'
+import { LoggerMiddleware } from './fundamentals/common/middleware/logger.middleware'
 import { AuthModule } from './modules/auth/auth.module'
 import { VersionModule } from './modules/version/version.module'
 
@@ -17,6 +18,11 @@ import { VersionModule } from './modules/version/version.module'
       // useFactory 是一个工厂函数，用于创建 TypeOrmModule 实例，返回值是一个 TypeOrmModuleOptions 对象
       useFactory: (config: ConfigService) => config.get('database'),
       inject: [ConfigService], // 注入 ConfigService 服务，用于获取配置文件中的数据库配置
+    }),
+    ClickhouseModule.forRoot({
+      url: 'http://localhost:8123',
+      username: 'default',
+      password: 'ningzhiClickhouse',
     }),
     VersionModule,
     AuthModule,
