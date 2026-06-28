@@ -9,7 +9,7 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": true, // 允许导入非 TypeScript 文件, 例如 postcss.config.mts
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,

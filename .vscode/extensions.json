@@ -3,17 +3,18 @@
   // for the documentation about the extensions.json format
   "recommendations": [
     "streetsidesoftware.code-spell-checker",
-    "pflannery.vscode-versionlens",
+    "pflannery.vscode-versionlens", // VersionLens 插件可以在代码中直接显示 Git 提交信息，帮助开发者查看代码的历史版本。
     "matthewpi.caddyfile-support",
-    "editorconfig.editorconfig",
+    "editorconfig.editorconfig", // EditorConfig 插件可以根据 .editorconfig 文件自动格式化代码，确保代码的一致性。
     "usernamehw.errorlens", // ErrorLens 插件可以在代码中直接显示 ESLint 的错误和警告信息，帮助开发者更快地发现和修复代码中的问题。
-    "dbaeumer.vscode-eslint",
+    "dbaeumer.vscode-eslint", // ESLint 插件可以在代码中直接显示 ESLint 的错误和警告信息，帮助开发者更快地发现和修复代码中的问题。
     "codezombiech.gitignore",
-    "wix.vscode-import-cost",
+    "wix.vscode-import-cost", // Import Cost 插件可以在代码中直接显示 import 语句的性能成本，帮助开发者优化代码。
     "esbenp.prettier-vscode",
     "stylelint.vscode-stylelint",
     "chakrounanas.turbo-console-log", // Turbo Console Log 插件可以快速在控制台输出日志信息，方便调试。
     "styled-components.vscode-styled-components",
-    "vue.volar" // Volar 插件是 Vue 3 的官方 VS Code 插件，提供了对 Vue 3 的全面支持，包括语法高亮、智能提示、错误检查等功能。
+    "vue.volar", // Volar 插件是 Vue 3 的官方 VS Code 插件，提供了对 Vue 3 的全面支持，包括语法高亮、智能提示、错误检查等功能。
+    "ms-vscode-remote.remote-containers" // Remote Containers 插件可以在 VS Code 中直接在容器中运行代码，无需在本地安装依赖。
   ]
 }

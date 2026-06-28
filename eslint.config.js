@@ -8,13 +8,19 @@ import importSort from 'eslint-plugin-simple-import-sort'
 import tsEslint from 'typescript-eslint'
 
 const ignores = [
-  'dist', 'build', '**/*.js', '**/*.mjs',
-  '**/*.d.ts', 'eslint.config.js',
-  'commitlint.config.js', 'suites/**/*'
+    'dist',
+    'build',
+    '**/*.js',
+    '**/*.mjs',
+    '**/*.d.ts',
+    'eslint.config.js',
+    'commitlint.config.js',
+    'apps/frontend/monitor/src/components/ui/**/*',
 ]
 
 const frontendMonitorConfig = {
   files: ['apps/frontend/monitor/**/*.{ts,tsx}'],
+  ignores: ['apps/frontend/monitor/src/components/ui/**/*'],
   languageOptions: {
     ecmaVersion: 2020,
     globals: globals.browser,

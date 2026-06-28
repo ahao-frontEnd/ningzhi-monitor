@@ -2,8 +2,11 @@ Androw
 bitnami
 breakline
 clickhouse
+Elipssis
 eslintcache
 gitee
+hugeicons
+Hypernova
 kafkajs
 Kamil
 metatype
