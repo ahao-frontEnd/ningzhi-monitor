@@ -1,6 +1,6 @@
 import clsx from 'clsx' // clsx 是一个用于条件合并 className 的库
 import { Bug, CalendarCheck, Lightbulb, Package, PartyPopper, Settings, Siren } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -42,14 +42,14 @@ const menus = [
   },
 ]
 
-export const description =
-  'A products dashboard with a sidebar navigation and a main content area. The dashboard has a header with a search input and a user menu. The sidebar has a logo, navigation links, and a card with a call to action. The main content area shows an empty state with a call to action.'
-
 export function Aside() {
+  const navigate = useNavigate()
   const handleConfetti = () => {
-    // ningzhiConfetti.schoolPride()
-    // ningzhiConfetti.snow()
     ningzhiConfetti.firework()
+  }
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    navigate(`/account/login?redirect=${window.location.pathname}`)
   }
   return (
     <div className=" border-r bg-gray-50 md:block">
@@ -104,7 +104,7 @@ export function Aside() {
               <Settings className="h-4 w-4" />
               设置
             </Button>
-            <Button variant="outline" size="sm" className="w-full mt-1">
+            <Button variant="outline" size="sm" className="w-full mt-1" onClick={handleLogout}>
               退出登录
             </Button>
           </div>

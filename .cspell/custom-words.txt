@@ -16,4 +16,5 @@ ningzhi
 njsproj
 ntvs
 smtps
+vaul
 vite
