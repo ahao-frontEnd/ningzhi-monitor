@@ -1,5 +1,6 @@
-import clsx from 'clsx'
 import React, { useEffect, useRef } from 'react'
+
+import { cn } from '@/lib/utils'
 
 interface Particle {
   x: number
@@ -118,5 +119,5 @@ export function World(props: WorldProps) {
     }
   }, [dustColor])
 
-  return <div ref={canvasContainerRef} className={clsx('absolute w-1/2 h-screen', className)}></div>
+  return <div ref={canvasContainerRef} className={cn('absolute w-1/2 h-screen', className)}></div>
 }

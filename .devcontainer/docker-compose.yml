@@ -11,21 +11,20 @@ services:
         image: apache/kafka                   # 使用官方 Kafka 镜像
         container_name: ningzhi-monitor-kafka # 给容器起个名字，方便管理
         ports:                                 # 端口映射：左边是宿主机端口，右边是容器内部端口
-            - '9092:9092'                      # 9092: 用于程序连接 Kafka
-            - '9093:9093'                      # 9093: Kafka 控制器端口（集群内部使用）
+            - '9093:9093'                      # 9093: 用于程序连接 Kafka 控制器端口（集群内部使用），
+            - '9094:9094'                      # 9094: Kafka 控制器端口（集群内部使用）
         environment:                           # 环境变量：配置 Kafka 的运行参数
-            - KAFKA_CFG_PROCESS_ROLES=broker,controller  # 角色：broker 是消息队列，controller 是集群控制器
-            - KAFKA_CFG_NODE_ID=1                    # 节点 ID：每个 Kafka 节点都有一个唯一的 ID，用于集群管理
-            - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@ningzhi-monitor-kafka:9093  # 集群控制器：指定控制器节点的 ID 和端口
-            # 广播监听器：指定 Kafka 节点的监听地址和端口，用于外部连接
-            - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://ningzhi-monitor-kafka:9092,PLAINTEXT_HOST://localhost:9092  
-             # 监听器：指定 Kafka 节点的监听地址和端口，用于内部通信
-            - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29092 
-            # 监听器安全协议：指定每个监听器的协议，如 PLAINTEXT（明文协议用于加密）
-            - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT  
-            - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT  # 内部监听器：指定 Kafka 节点之间的通信监听器，如 PLAINTEXT（明文协议用于加密）
-            - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER  # 控制器监听器：指定 Kafka 控制器节点的监听器，如 CONTROLLER（控制器协议）
-            - ALLOW_PLAINTEXT_LISTENER=yes  # 允许明文监听器：指定是否允许明文协议（不建议生产环境使用）
+            - KAFKA_NODE_ID=1 # 节点 ID，用于集群识别
+            - KAFKA_PROCESS_ROLES=broker,controller # 节点角色，broker 是普通节点，controller 是控制器节点，
+            # broker 是普通节点，用于处理消息；controller 是控制器节点，用于协调集群操作。
+            - KAFKA_CONTROLLER_QUORUM_VOTERS=1@192.168.1.105:9093 # 用于协调集群操作，指定控制器节点， 192.168.1.105 是宿主机的 IP 地址
+            - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094 # 监听端口，用于接收消息和协调集群操作，
+            # 9092 是普通节点端口，用于接收消息；9093 是控制器节点端口，用于协调集群操作；0.0.0.0:9094 是外部端口，用于接收消息。
+            - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://ningzhi-monitor-kafka:9092,EXTERNAL://localhost:9094 # 广播的监听端口，用于外部连接，
+            # 9092 是普通节点端口，用于接收消息；9094 是外部端口，用于接收消息。
+            - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT # 监听端口安全协议映射，用于指定不同监听端口的安全协议，
+            - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER # 控制器节点监听端口，用于协调集群操作，
+            - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT # 普通节点监听端口，用于接收消息，
         # volumes:                              # 数据持久化：把容器内数据保存到宿主机
         #     - ./kafka_data:/bitnami/kafka/data  # 注释掉的是数据持久化配置，启用后可防止数据丢失
 
@@ -52,9 +51,9 @@ services:
         ports:
             - '5432:5432'                      # 5432: PostgreSQL 默认端口
         environment:
-            - POSTGRESQL_USERNAME=postgres    # 用户名
-            - ALLOW_EMPTY_PASSWORD=yes        # 允许空密码（本地开发环境）
-            - POSTGRESQL_DATABASE=postgres     # 默认数据库名
+            - POSTGRES_USER=postgres          # 默认用户名
+            - POSTGRES_DB=postgres              # 默认数据库名
+            - POSTGRES_PASSWORD=ningzhiPostgresql  # 密码（建议生产环境使用更复杂的密码）
         volumes:
             - ./postgresql_data:/bitnami/postgresql  # 数据持久化：数据库文件保存在宿主机
 

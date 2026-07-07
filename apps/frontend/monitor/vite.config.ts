@@ -11,4 +11,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // server 配置, server 是 vite 提供的服务器，用于开发环境下的请求代理
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080', // 目标服务器地址
+        changeOrigin: true, // 改变源，解决跨域问题
+      },
+    },
+  },
 })

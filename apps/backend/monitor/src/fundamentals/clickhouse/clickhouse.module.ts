@@ -1,7 +1,7 @@
 import { createClient } from '@clickhouse/client'
 import { DynamicModule, Global, Module } from '@nestjs/common'
 
-@Global()
+@Global() // 全局模块，确保在应用中只能实例化一次 ClickHouse 客户端
 @Module({})
 export class ClickhouseModule {
   static forRoot(options: { url: string; username: string; password: string }): DynamicModule {

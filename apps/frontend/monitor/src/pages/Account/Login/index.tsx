@@ -1,8 +1,14 @@
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useToast } from '@/hooks/use-toast'
+import * as srv from '@/services'
+import { CreateUserPayload } from '@/types/api'
+import { encrypt } from '@/utils/crypto'
 
 import { TaiJi } from './TaiJi'
 import { World } from './World'
@@ -11,12 +17,57 @@ export const description =
   "A login page with two columns. The first column has the login form with email and password. There's a Forgot your password link and a link to sign up if you do not have an account. The second column has a cover image."
 
 export function Login() {
+  const form = useForm<CreateUserPayload>()
+  const [inputType, setInputType] = useState<'login' | 'register'>('login')
   const navigate = useNavigate()
+  const { toast } = useToast()
 
-  const handleLogin = () => {
-    localStorage.setItem('token', '123456')
-    const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects'
-    navigate(redirectUrl)
+  const handleSubmit = async (data: CreateUserPayload) => {
+    const { password } = data
+    const encryptedPassword = await encrypt(password)
+
+    if (!encryptedPassword) {
+      return
+    }
+
+    try {
+      const res = await srv[inputType]({
+        ...data,
+        password: encryptedPassword,
+      })
+
+      if (!res.data.success) {
+        toast({
+          variant: 'destructive',
+          title: res.data.message + '请稍后重试',
+        })
+        return
+      }
+
+      if (inputType === 'login') {
+        toast({
+          variant: 'success',
+          title: '登录成功',
+        })
+
+        localStorage.setItem('token', res.data.token)
+
+        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects'
+        navigate(redirectUrl)
+      }
+
+      if (inputType === 'register') {
+        toast({
+          title: '注册成功，请前往登录',
+        })
+        setInputType('login')
+      }
+    } catch {
+      toast({
+        variant: 'destructive',
+        title: '登录失败，请稍后重试',
+      })
+    }
   }
 
   return (
@@ -35,7 +86,7 @@ export function Login() {
           >
             <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
           </svg>
-          Ningzhi Monitor
+          Ningzhi
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
@@ -52,26 +103,69 @@ export function Login() {
         <div className="flex items-center justify-center ">
           <div className="mx-auto grid w-[350px] gap-6">
             <div className="grid gap-2 text-center">
-              <h1 className="text-2xl font-bold mb-8">Ningzhi 性能与异常监控平台</h1>
+              <h1 className="text-2xl font-bold mb-8">Ningzhi性能与异常监控平台</h1>
             </div>
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="email">邮箱</Label>
-                </div>
-                <Input id="email" type="email" placeholder="m@example.com" required />
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)}>
+                <FormField
+                  control={form.control}
+                  rules={{ required: '请输入用户名' }}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>用户名</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="请输入用户名" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  rules={{ required: '请输入密码' }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>密码</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="password" placeholder="请输入密码" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <Button type="submit" className="w-full mt-4">
+                  {inputType == 'login' ? '登录' : '注册'}
+                </Button>
+              </form>
+            </Form>
+            {inputType === 'login' ? (
+              <div className="text-center text-sm">
+                没有账号?{' '}
+                <Button
+                  variant="link"
+                  onClick={() => {
+                    form.clearErrors()
+                    setInputType('register')
+                  }}
+                >
+                  注册
+                </Button>
               </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">密码</Label>
-                </div>
-                <Input id="password" type="password" required placeholder="请输入密码" />
+            ) : (
+              <div className="text-center text-sm">
+                已有账号?{' '}
+                <Button
+                  variant="link"
+                  onClick={() => {
+                    form.clearErrors()
+                    setInputType('login')
+                  }}
+                >
+                  登录
+                </Button>
               </div>
-              <Button type="submit" className="w-full" onClick={handleLogin}>
-                登录
-              </Button>
-            </div>
-            <div className="mt-4 text-center text-sm">没有账号? 注册</div>
+            )}
           </div>
         </div>
       </div>

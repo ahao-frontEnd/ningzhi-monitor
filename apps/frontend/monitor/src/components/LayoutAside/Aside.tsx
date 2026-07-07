@@ -1,9 +1,9 @@
-import clsx from 'clsx' // clsx 是一个用于条件合并 className 的库
 import { Bug, CalendarCheck, Lightbulb, Package, PartyPopper, Settings, Siren } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { ningzhiConfetti } from '@/utils/ningzhi-confetti'
 
 const menus = [
@@ -68,7 +68,7 @@ export function Aside() {
                   key={menu.name}
                   to={`/${menu.name}`}
                   className={({ isActive }) =>
-                    clsx(
+                    cn(
                       'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                       isActive && 'bg-muted'
                     )
