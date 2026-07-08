@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import databaseConfig from './config/database'
 import { ClickhouseModule } from './fundamentals/clickhouse/clickhouse.module'
 import { LoggerMiddleware } from './fundamentals/common/middleware/logger.middleware'
+import { ApplicationModule } from './modules/application/application.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { VersionModule } from './modules/version/version.module'
 
@@ -26,6 +27,7 @@ import { VersionModule } from './modules/version/version.module'
     }),
     VersionModule,
     AuthModule,
+    ApplicationModule,
   ],
 })
 export class AppModule {

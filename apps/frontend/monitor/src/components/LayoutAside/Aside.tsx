@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query' // @tanstack/react-query 是一个 React Query 库，用于处理异步查询和缓存
-import { Bug, CalendarCheck, Lightbulb, Package, PartyPopper, Settings, Siren } from 'lucide-react'
+// lucide-react 是一个 React 组件库，提供了 Lucide 图标组件
+import { Bug, CalendarCheck, Lightbulb, Package, Settings, Siren } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 
 import { Badge } from '@/components/ui/badge'
@@ -8,6 +9,8 @@ import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import * as srv from '@/services'
 import { ningzhiConfetti } from '@/utils/ningzhi-confetti'
+
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 
 const menus = [
   {
@@ -53,7 +56,10 @@ export function Aside() {
   // 它会自动处理查询的执行、缓存、刷新等操作，而无需手动编写这些逻辑
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'], // queryKey 是一个唯一的标识符，用于缓存和管理查询结果
-    queryFn: async () => await srv.currentUser(),
+    queryFn: async () => {
+      const res = await srv.currentUser()
+      return res.data?.data
+    },
   })
 
   const handleConfetti = () => {
@@ -106,16 +112,26 @@ export function Aside() {
             <Button
               variant="ghost"
               size="sm"
-              className="w-full flex justify-start gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              className="w-full h-fit flex justify-start gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
               onClick={handleConfetti}
             >
-              <PartyPopper className="h-4 w-4" />
-              {currentUser?.data.data.username} 庆祝一下 🎉
+              {currentUser && (
+                <>
+                  <Avatar>
+                    <AvatarImage src={`https://robohash.org/${currentUser.username}?set=set1&size=100x100`} />
+                    <AvatarFallback>{currentUser.username}</AvatarFallback>
+                  </Avatar>
+                  <p className="text-left">
+                    <p className="text-lg">{currentUser.username}！</p>
+                    庆祝一下 🎉
+                  </p>
+                </>
+              )}
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              className="w-full flex justify-start gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              className="w-full flex justify-start gap-3 mt-2 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
             >
               <Settings className="h-4 w-4" />
               设置
