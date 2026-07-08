@@ -22,8 +22,8 @@ export function Login() {
   const navigate = useNavigate()
   const { toast } = useToast()
 
-  const handleSubmit = async (data: CreateUserPayload) => {
-    const { password } = data
+  const handleSubmit = async (values: CreateUserPayload) => {
+    const { password } = values
     const encryptedPassword = await encrypt(password)
 
     if (!encryptedPassword) {
@@ -32,7 +32,7 @@ export function Login() {
 
     try {
       const res = await srv[inputType]({
-        ...data,
+        ...values,
         password: encryptedPassword,
       })
 
@@ -49,8 +49,7 @@ export function Login() {
           variant: 'success',
           title: '登录成功',
         })
-
-        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('token', res.data.data.access_token)
 
         const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects'
         navigate(redirectUrl)

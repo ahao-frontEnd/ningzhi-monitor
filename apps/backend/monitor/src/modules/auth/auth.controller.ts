@@ -27,8 +27,8 @@ export class AuthController {
   // 获取当前用户信息
   @UseGuards(AuthGuard('jwt'))
   @Get('currentUser')
-  currentUser(@Request() req) {
-    return { data: req.body.username, success: true }
+  currentUser() {
+    return { data: { username: 'ningzhi123' }, success: true }
   }
 
   // 测试登录后才可访问的接口，在需要的地方使用守卫，可保证必须携带token才能访问

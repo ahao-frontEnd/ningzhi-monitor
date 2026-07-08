@@ -1,9 +1,12 @@
+import { useQuery } from '@tanstack/react-query' // @tanstack/react-query 是一个 React Query 库，用于处理异步查询和缓存
 import { Bug, CalendarCheck, Lightbulb, Package, PartyPopper, Settings, Siren } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
+import * as srv from '@/services'
 import { ningzhiConfetti } from '@/utils/ningzhi-confetti'
 
 const menus = [
@@ -44,13 +47,26 @@ const menus = [
 
 export function Aside() {
   const navigate = useNavigate()
+
+  const { toast } = useToast()
+  // useQuery 是一个 React Query 提供的钩子函数，用于执行异步查询并缓存结果。
+  // 它会自动处理查询的执行、缓存、刷新等操作，而无需手动编写这些逻辑
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'], // queryKey 是一个唯一的标识符，用于缓存和管理查询结果
+    queryFn: async () => await srv.currentUser(),
+  })
+
   const handleConfetti = () => {
     ningzhiConfetti.firework()
   }
   const handleLogout = () => {
+    toast({
+      title: '退出登录',
+    })
     localStorage.removeItem('token')
     navigate(`/account/login?redirect=${window.location.pathname}`)
   }
+
   return (
     <div className=" border-r bg-gray-50 md:block">
       <div className="flex h-full max-h-screen flex-col gap-2">
@@ -94,7 +110,7 @@ export function Aside() {
               onClick={handleConfetti}
             >
               <PartyPopper className="h-4 w-4" />
-              庆祝一下 🎉
+              {currentUser?.data.data.username} 庆祝一下 🎉
             </Button>
             <Button
               variant="ghost"
