@@ -1,5 +1,3 @@
-import { AxiosResponse } from 'axios'
-
 import { CurrentUserRes, LoginPayload, LoginRes } from '@/types/api'
 import { request } from '@/utils/request'
 
@@ -8,7 +6,7 @@ import { request } from '@/utils/request'
  * @param data
  * @returns
  */
-export const login = async (data: LoginPayload): Promise<AxiosResponse<LoginRes>> => {
+export const login = async (data: LoginPayload): Promise<LoginRes> => {
   return await request.post('/auth/login', data)
 }
 
@@ -16,7 +14,7 @@ export const login = async (data: LoginPayload): Promise<AxiosResponse<LoginRes>
  * 获取当前用户信息
  * @returns
  */
-export const currentUser = async (): Promise<AxiosResponse<CurrentUserRes>> => {
+export const currentUser = async (): Promise<CurrentUserRes> => {
   return await request.get('/currentUser')
 }
 

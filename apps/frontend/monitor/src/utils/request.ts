@@ -17,7 +17,7 @@ request.interceptors.request.use(config => {
 
 request.interceptors.response.use(
   response => {
-    return response
+    return response.data
   },
   error => {
     // 如果是401错误，跳转到登录页

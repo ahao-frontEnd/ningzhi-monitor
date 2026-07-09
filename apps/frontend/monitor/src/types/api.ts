@@ -1,3 +1,5 @@
+// 用户相关
+
 export interface CreateUserPayload {
   username: string
   password: string
@@ -19,4 +21,31 @@ export interface CurrentUserRes {
     username: string
     email: string
   }
+}
+
+// 应用相关
+// 应用类型
+export type ApplicationType = 'vanilla' | 'react' | 'vue'
+// 应用数据
+export interface ApplicationData {
+  type: ApplicationType
+  appId: string
+  name: string
+  bugs: number
+  transactions: number
+  data: {
+    date: string
+    resting: number
+  }[]
+  createdAt: Date
+}
+// 应用列表
+export interface ApplicationListRes {
+  data: { applications: ApplicationData[] }
+}
+
+// 创建应用请求体
+export interface CreateApplicationPayload {
+  name: string
+  type: ApplicationType
 }

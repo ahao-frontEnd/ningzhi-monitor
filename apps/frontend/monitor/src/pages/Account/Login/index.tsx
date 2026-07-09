@@ -36,10 +36,10 @@ export function Login() {
         password: encryptedPassword,
       })
 
-      if (!res.data.success) {
+      if (!res.data) {
         toast({
           variant: 'destructive',
-          title: res.data.message + '请稍后重试',
+          title: '请稍后重试',
         })
         return
       }
@@ -49,7 +49,7 @@ export function Login() {
           variant: 'success',
           title: '登录成功',
         })
-        localStorage.setItem('token', res.data.data.access_token)
+        localStorage.setItem('token', res.data.access_token)
 
         const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects'
         navigate(redirectUrl)

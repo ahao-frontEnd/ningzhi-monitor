@@ -58,7 +58,7 @@ export function Aside() {
     queryKey: ['currentUser'], // queryKey 是一个唯一的标识符，用于缓存和管理查询结果
     queryFn: async () => {
       const res = await srv.currentUser()
-      return res.data?.data
+      return res.data
     },
   })
 
