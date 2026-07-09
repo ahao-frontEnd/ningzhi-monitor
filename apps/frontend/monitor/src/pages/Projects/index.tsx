@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import copyText from 'copy-text-to-clipboard'
 import { lightFormat } from 'date-fns'
-import { Copy, Settings } from 'lucide-react'
+import { Copy, Package, Settings } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
 
@@ -15,8 +15,6 @@ import { CreateApplicationPayload } from '@/types/api'
 
 import { CreateProjectsModal } from './CreateProjectModal'
 import { appLogoMap } from './meta'
-
-export const description = 'A collection of health charts.'
 
 export function Projects() {
   const { toast } = useToast()
@@ -208,8 +206,11 @@ export function Projects() {
 
   return (
     <div className="flex-1 flex-col">
-      <header className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold">项目总览</h1>
+      <header className="flex items-center justify-between h-[36px] mb-4">
+        <h1 className="flex flex-row items-center text-xl font-semibold">
+          <Package className="h-6 w-6 mr-2" />
+          项目总览
+        </h1>
         <CreateProjectsModal onCreateProject={createApplication} />
       </header>
 

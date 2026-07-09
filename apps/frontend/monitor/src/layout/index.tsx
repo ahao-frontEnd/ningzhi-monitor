@@ -3,9 +3,6 @@ import { Outlet } from 'react-router-dom'
 
 import { Aside } from '@/components/LayoutAside/Aside'
 
-export const description =
-  'A products dashboard with a sidebar navigation and a main content area. The dashboard has a header with a search input and a user menu. The sidebar has a logo, navigation links, and a card with a call to action. The main content area shows an empty state with a call to action.'
-
 export function Layout() {
   // 检查是否有 token，没有则跳转到登录页, useLayoutEffect 确保在 DOM 渲染完成后执行跳转
   useLayoutEffect(() => {
