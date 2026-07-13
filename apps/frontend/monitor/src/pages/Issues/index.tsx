@@ -3,7 +3,7 @@ import { Bug, ListFilter, Timer } from 'lucide-react'
 import { CartesianGrid, Line, LineChart } from 'recharts'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import {
   DropdownMenu,
@@ -256,11 +256,6 @@ export function Issues() {
                 </TableBody>
               </Table>
             </CardContent>
-            <CardFooter>
-              <div className="text-xs text-muted-foreground">
-                Showing <strong>1-10</strong> of <strong>32</strong> products
-              </div>
-            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>

@@ -7,6 +7,7 @@ import { Dashboard } from '@/views/Dashboard'
 import { Issues } from '@/views/Issues'
 import { Login } from '@/views/Login'
 import { Performance } from '@/views/Performance'
+import { PerformanceSummary } from '@/views/PerformanceSummary'
 import { Projects } from '@/views/Projects'
 
 import AuthRoute from './AuthRoute'
@@ -37,6 +38,10 @@ export const router: PickRouter<A> = createBrowserRouter([
       {
         path: 'performance',
         element: <Performance />,
+      },
+      {
+        path: 'performance/summary',
+        element: <PerformanceSummary />,
       },
       {
         path: 'dashboard',

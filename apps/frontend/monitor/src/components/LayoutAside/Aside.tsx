@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query' // @tanstack/react-query 是一个 React Query 库，用于处理异步查询和缓存
 // lucide-react 是一个 React 组件库，提供了 Lucide 图标组件
-import { Bug, CalendarCheck, Lightbulb, Package, Settings, Siren } from 'lucide-react'
+import { Bug, CalendarCheck, Lightbulb, Package, Settings, Siren, Zap } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 
 import { Badge } from '@/components/ui/badge'
@@ -27,7 +27,7 @@ const menus = [
   },
   {
     name: 'performance',
-    icon: Package,
+    icon: Zap,
     title: '性能',
     gap: true,
   },
