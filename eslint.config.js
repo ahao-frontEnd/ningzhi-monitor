@@ -16,6 +16,7 @@ const ignores = [
     'eslint.config.js',
     'commitlint.config.js',
     'apps/frontend/monitor/src/components/ui/**/*',
+    'packages/browser-utils/src/metrics/**/*',
 ]
 
 const frontendMonitorConfig = {

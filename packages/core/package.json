@@ -24,11 +24,11 @@
     "build": "pnpm build:transpile && pnpm build:types",
     "build:transpile": "tsup",
     "build:types": "tsc -p tsconfig.types.json",
-    "typecheck": "tsc --noEmit",
-    "clean": "rimraf build"
+    "clean": "rimraf build",
+    "typecheck": "tsc --noEmit"
   },
-  "description": "",
   "keywords": [],
   "author": "Ningzhi",
-  "license": "ISC"
+  "license": "NingzhiProject",
+  "description": ""
 }

@@ -1,4 +1,11 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    // 允许这个包的代码使用 TypeScript 的一些特殊语法。例如 declare、namespace enum 等
+    // 1. 因为这些特殊语法是可以生成 类型声明文件 （给其他包用的说明书），
+    // 2. 支持灵活的代码组织方式， 例如 namespace、declare 等
+    // 3. 如果设置为 true，那么每个文件都是一个独立的模块，不能使用 namespace、declare 等语法
+    "isolatedModules": false // 禁用隔离模块，因为 core 是一个库，而不是一个业务应用
+  }
 }

@@ -1,6 +1,6 @@
 import { Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Area, AreaChart, Bar, BarChart, Label, Rectangle, ReferenceLine, XAxis, YAxis } from 'recharts'
+import { Area, AreaChart, Bar, BarChart, Rectangle, YAxis } from 'recharts'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
@@ -22,24 +22,29 @@ const MOCK_PERFORMANCE: Performance[] = [
     id: 1,
     path: '/',
     appType: 'react',
-    appName: 'Ningzhi - React 应用',
+    appName: '妙码学院 React 应用',
     users: 2,
   },
   {
     id: 2,
     path: '/dashboard',
     appType: 'vue',
-    appName: 'Ningzhi - Vue 应用',
+    appName: '妙码学院 Vue 应用',
     users: 1,
   },
   {
     id: 3,
     path: '/issues',
     appType: 'vanilla',
-    appName: 'Ningzhi - JavaScript 应用',
+    appName: '妙码学院 JavaScript 应用',
     users: 3,
   },
 ]
+
+const durations = Array.from({ length: 140 }, (_, i) => ({
+  ms: i,
+  count: Math.floor(Math.random() * (100 - 20) + 20),
+}))
 
 export function Performance() {
   const generateSummaryPath = (queryParams: { project: string; appType: ApplicationType; transaction: string }) => {
@@ -58,7 +63,7 @@ export function Performance() {
         <div className="flex flex-row gap-4">
           <Card className="flex flex-col flex-grow">
             <CardHeader>
-              <CardTitle className="flex flex-row items-center">时长分布图</CardTitle>
+              <CardTitle className="flex flex-row items-center">时长分布</CardTitle>
               <CardDescription>通过时长分布图，您可以清晰看到资源记载情况</CardDescription>
             </CardHeader>
             <CardContent>
@@ -66,94 +71,30 @@ export function Performance() {
                 className="w-full h-64"
                 config={{
                   steps: {
-                    label: 'Steps',
-                    color: 'hsl(var(--chart-2))',
+                    color: `hsl(var(--chart-1))`,
                   },
                 }}
               >
-                <BarChart
-                  accessibilityLayer
-                  margin={{
-                    left: -4,
-                    right: -4,
-                  }}
-                  data={[
-                    {
-                      date: '2024-01-01',
-                      steps: 2000,
-                    },
-                    {
-                      date: '2024-01-02',
-                      steps: 2100,
-                    },
-                    {
-                      date: '2024-01-03',
-                      steps: 2200,
-                    },
-                    {
-                      date: '2024-01-04',
-                      steps: 1300,
-                    },
-                    {
-                      date: '2024-01-05',
-                      steps: 1400,
-                    },
-                    {
-                      date: '2024-01-06',
-                      steps: 2500,
-                    },
-                    {
-                      date: '2024-01-07',
-                      steps: 1600,
-                    },
-                  ]}
-                >
-                  <Bar dataKey="steps" fill="var(--color-steps)" radius={5} fillOpacity={0.6} activeBar={<Rectangle fillOpacity={0.8} />} />
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={4}
-                    tickFormatter={value => {
-                      return new Date(value).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                      })
-                    }}
-                  />
+                <BarChart accessibilityLayer data={durations}>
+                  <Bar dataKey="count" fill="var(--color-steps)" radius={5} fillOpacity={0.6} activeBar={<Rectangle fillOpacity={0.8} />} />
+                  <YAxis dataKey="count" tickLine={false} axisLine={false} width={28} />
                   <ChartTooltip
-                    defaultIndex={2}
                     content={
                       <ChartTooltipContent
-                        hideIndicator
-                        labelFormatter={value => {
-                          return new Date(value).toLocaleDateString('en-US', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })
+                        labelFormatter={(_, payload) => {
+                          const ms = payload[0]?.payload?.ms
+                          return ms !== undefined ? `${ms}ms` : '-'
                         }}
                       />
                     }
-                    cursor={false}
                   />
-                  <ReferenceLine y={1200} stroke="hsl(var(--muted-foreground))" strokeDasharray="3 3" strokeWidth={1}>
-                    <Label position="insideBottomLeft" value="Average Steps" offset={10} fill="hsl(var(--foreground))" />
-                    <Label
-                      position="insideTopLeft"
-                      value="12,343"
-                      className="text-lg"
-                      fill="hsl(var(--foreground))"
-                      offset={10}
-                      startOffset={100}
-                    />
-                  </ReferenceLine>
                 </BarChart>
               </ChartContainer>
             </CardContent>
           </Card>
           <Card className="flex flex-col flex-grow">
             <CardHeader>
-              <CardTitle className="flex flex-row items-center">P50 时长统计</CardTitle>
+              <CardTitle className="flex flex-row items-center">P50 时长分布</CardTitle>
               <CardDescription>通过 P50 时长统计，您可以查看应用的性能数据。</CardDescription>
             </CardHeader>
             <CardContent>
@@ -168,36 +109,7 @@ export function Performance() {
               >
                 <AreaChart
                   accessibilityLayer
-                  data={[
-                    {
-                      date: '2024-01-01',
-                      time: 8.5,
-                    },
-                    {
-                      date: '2024-01-02',
-                      time: 7.2,
-                    },
-                    {
-                      date: '2024-01-03',
-                      time: 8.1,
-                    },
-                    {
-                      date: '2024-01-04',
-                      time: 6.2,
-                    },
-                    {
-                      date: '2024-01-05',
-                      time: 5.2,
-                    },
-                    {
-                      date: '2024-01-06',
-                      time: 8.1,
-                    },
-                    {
-                      date: '2024-01-07',
-                      time: 7.0,
-                    },
-                  ]}
+                  data={durations}
                   margin={{
                     left: 0,
                     right: 0,
@@ -205,27 +117,23 @@ export function Performance() {
                     bottom: 0,
                   }}
                 >
-                  <XAxis dataKey="date" hide />
-                  <YAxis domain={['dataMin - 5', 'dataMax + 2']} hide />
+                  <YAxis dataKey="count" tickLine={false} axisLine={false} width={28} domain={['dataMin - 5', 'dataMax + 2']} />
                   <defs>
                     <linearGradient id="fillTime" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--color-time)" stopOpacity={0.8} />
                       <stop offset="95%" stopColor="var(--color-time)" stopOpacity={0.1} />
                     </linearGradient>
                   </defs>
-                  <Area dataKey="time" type="natural" fill="url(#fillTime)" fillOpacity={0.4} stroke="var(--color-time)" />
+                  <Area dataKey="count" type="natural" fill="url(#fillTime)" fillOpacity={0.4} stroke="var(--color-time)" />
                   <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent hideLabel />}
-                    formatter={value => (
-                      <div className="flex min-w-[120px] items-center text-xs text-muted-foreground">
-                        Time in bed
-                        <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
-                          {value}
-                          <span className="font-normal text-muted-foreground">hr</span>
-                        </div>
-                      </div>
-                    )}
+                    content={
+                      <ChartTooltipContent
+                        labelFormatter={(_, payload) => {
+                          const ms = payload[0]?.payload?.ms
+                          return ms !== undefined ? `${ms}ms` : '-'
+                        }}
+                      />
+                    }
                   />
                 </AreaChart>
               </ChartContainer>

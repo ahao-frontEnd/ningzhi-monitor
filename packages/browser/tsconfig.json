@@ -1,8 +1,29 @@
 {
+  // 继承根目录的 tsconfig.json 配置，共享基础编译选项（如 strict、target 等）
   "extends": "../../tsconfig.json",
+  // 包含 src 目录下的所有文件
   "include": ["src/**/*"],
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext"
+    // 模块系统：ESNext
+    // - 使用最新的 ES 模块语法（import/export）
+    // - 配合 tsup 打包工具，可以输出 ESM 和 CJS 两种格式
+    "module": "ESNext",
+
+    // 模块解析策略：node（在 TypeScript 5.5+ 中已弃用，建议改为 node10 或 bundler）
+    // - node10: 与 node 行为完全一致，只是换了名字，适用于 Node.js 环境
+    // - bundler: 适用于 tsup/webpack/vite 等打包器，支持裸模块导入（不强制文件扩展名）
+    // - 由于根 tsconfig 使用 node10，此处暂时保留 node 以保持一致
+    "moduleResolution": "node",
+
+    // 引入的内置库：
+    // - dom: 提供浏览器环境的 DOM API 类型（如 document、window 等）
+    // - ESNext: 提供最新 ECMAScript 特性的类型支持
+    "lib": ["dom", "ESNext"],
+
+    // 忽略 TypeScript 6.0 及以上版本的弃用警告
+    // - 当使用已弃用的配置项（如 moduleResolution: "node"）时，
+    //   TypeScript 6.0+ 会发出弃用警告，设置此选项可以抑制这些警告
+    // - 建议：将 moduleResolution 改为 node10 或 bundler，即可移除此选项
+    "ignoreDeprecations": "6.0"
   }
 }

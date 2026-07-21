@@ -33,6 +33,7 @@
   "author": "Ningzhi",
   "license": "ISC",
   "dependencies": {
-    "@ningzhi/monitor-sdk-core": "workspace:*"
+    "@ningzhi/monitor-sdk-core": "workspace:*",
+    "@ningzhi/monitor-sdk-browser-utils": "workspace:*"
   }
 }

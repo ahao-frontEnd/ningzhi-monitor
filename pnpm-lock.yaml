@@ -464,6 +464,15 @@ importers:
 
   packages/browser:
     dependencies:
+      '@ningzhi/monitor-sdk-browser-utils':
+        specifier: workspace:*
+        version: link:../browser-utils
+      '@ningzhi/monitor-sdk-core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/browser-utils:
+    dependencies:
       '@ningzhi/monitor-sdk-core':
         specifier: workspace:*
         version: link:../core
