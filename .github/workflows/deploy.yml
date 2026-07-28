@@ -115,17 +115,26 @@ jobs:
 
             echo "==== 2. 检查部署目录 ===="
             mkdir -p /home/ubuntu/main-monitor
-            echo '--- 目录结构 ---'
-            find /home/ubuntu/main-monitor -maxdepth 3 -type f 2>/dev/null || true
             echo '--- .devcontainer 内容 ---'
             ls -la /home/ubuntu/main-monitor/.devcontainer/ 2>/dev/null || echo '.devcontainer 不存在'
 
-            echo "==== 3. 拉取最新后端镜像 ===="
-            docker pull ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-server:latest
+            echo "==== 3. 导出环境变量（供 docker compose 使用）===="
+            export ACR_REGISTRY=${{ secrets.ACR_REGISTRY }}
+            export ACR_NAMESPACE=${{ secrets.ACR_NAMESPACE }}
+            echo "镜像路径: ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-server:latest"
 
-            echo "==== 4. 启动服务 ===="
+            echo "==== 4. 拉取最新后端镜像 ===="
+            docker pull ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-server:latest
+
+            echo "==== 5. 重启后端服务（不影响数据库等基础设施）===="
             cd /home/ubuntu/main-monitor
-            docker compose -f .devcontainer/docker-compose.production.yml up -d
+            docker compose -f .devcontainer/docker-compose.production.yml up -d \
+              --no-deps \
+              --force-recreate \
+              ningzhi-monitor-server
 
-            echo "==== 5. 部署完成，查看容器状态 ===="
+            echo "==== 6. 部署完成，查看容器状态 ===="
             docker compose -f .devcontainer/docker-compose.production.yml ps
+
+            echo "==== 7. 清理旧镜像 ===="
+            docker image prune -f --filter "until=24h" || true

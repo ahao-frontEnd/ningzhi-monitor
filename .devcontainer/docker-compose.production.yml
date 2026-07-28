@@ -6,8 +6,9 @@ include:
   
 services:
   # 后端服务 - 使用 ACR 预构建镜像
+  # 镜像路径通过环境变量注入，确保与 CI/CD 推送时一致
   ningzhi-monitor-server:
-    image: registry.cn-hangzhou.aliyuncs.com/ningzhi-hub/ningzhi-monitor-server:latest
+    image: ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-server:latest
     container_name: ningzhi-monitor-server
     ports:
       - 8081:8081
@@ -27,7 +28,7 @@ services:
       - 443:443
     volumes:
       - ./caddy:/etc/caddy
-      - /home/ningzhi/frontend-dist:/app/frontend/monitor/dist
+      - /home/ubuntu/frontend-dist:/app/frontend/monitor/dist
       - caddy_data:/data
       - caddy_config:/config
     restart: unless-stopped
