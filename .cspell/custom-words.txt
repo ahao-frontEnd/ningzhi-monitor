@@ -1,7 +1,10 @@
 aliyuncs
 Androw
+appleboy
 bitnami
 breakline
+Buildx
+cicd
 clickhouse
 Elipssis
 esbuild

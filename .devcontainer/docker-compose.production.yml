@@ -7,7 +7,7 @@ include:
 services:
   # 后端服务 - 使用 ACR 预构建镜像
   ningzhi-monitor-server:
-    image: registry.cn-hangzhou.aliyuncs.com/<你的阿里云账号>/ningzhi-monitor-server:latest
+    image: registry.cn-hangzhou.aliyuncs.com/ningzhi-hub/ningzhi-monitor-server:latest
     container_name: ningzhi-monitor-server
     ports:
       - 8081:8081

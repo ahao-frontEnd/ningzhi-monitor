@@ -79,7 +79,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           source: 'dist/*'
-          target: '/home/ningzhi/frontend-dist/'
+          target: '/home/ubuntu/frontend-dist/'
           rm: true
           strip_components: 1
 
@@ -101,5 +101,5 @@ jobs:
             docker pull ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_USERNAME }}/ningzhi-monitor-server:latest
 
             # 重新启动服务
-            cd /home/ningzhi/main-monitor
+            cd /home/ubuntu/main-monitor
             docker compose -f .devcontainer/docker-compose.production.yml up -d
