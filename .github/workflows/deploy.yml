@@ -84,6 +84,18 @@ jobs:
           rm: true
           strip_components: 1
 
+      # ============ 上传 docker-compose 配置文件到服务器 ============
+      - name: Upload compose configs to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: '.devcontainer/*'
+          target: '/home/ubuntu/main-monitor/.devcontainer/'
+          rm: true
+
       # ============ 在服务器上登录 ACR 并拉取镜像 ============
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.3
@@ -93,14 +105,23 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            # 登录 ACR（服务器首次需要，之后会缓存）
+            set -e
+
+            echo "==== 1. 登录 ACR ===="
             docker login ${{ secrets.ACR_REGISTRY }} \
               -u ${{ secrets.ACR_USERNAME }} \
               -p ${{ secrets.ACR_PASSWORD }}
 
-            # 拉取最新后端镜像（从 ACR，国内速度快）
+            echo "==== 2. 检查部署目录 ===="
+            mkdir -p /home/ubuntu/main-monitor
+            ls -la /home/ubuntu/main-monitor/.devcontainer/
+
+            echo "==== 3. 拉取最新后端镜像 ===="
             docker pull ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-server:latest
 
-            # 重新启动服务
+            echo "==== 4. 启动服务 ===="
             cd /home/ubuntu/main-monitor
             docker compose -f .devcontainer/docker-compose.production.yml up -d
+
+            echo "==== 5. 部署完成，查看容器状态 ===="
+            docker compose -f .devcontainer/docker-compose.production.yml ps
