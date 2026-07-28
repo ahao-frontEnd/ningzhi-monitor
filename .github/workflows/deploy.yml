@@ -133,8 +133,25 @@ jobs:
               --force-recreate \
               ningzhi-monitor-server
 
-            echo "==== 6. 部署完成，查看容器状态 ===="
+            echo "==== 6. 重建 Caddy 容器（加载最新前端文件）===="
+            # 必须用 --force-recreate 重建 Caddy，否则不会重新挂载前端目录
+            docker compose -f .devcontainer/docker-compose.production.yml up -d \
+              --no-deps \
+              --force-recreate \
+              ningzhi-monitor-caddy
+
+            echo "==== 7. 验证前端文件挂载 ===="
+            echo '--- 宿主机前端文件 ---'
+            ls -la /home/ubuntu/frontend-dist/ | head -10
+            echo '--- 容器内前端文件 ---'
+            docker exec ningzhi-monitor-caddy ls -la /app/frontend/monitor/dist/ | head -10
+            echo '--- 检查新文案 ---'
+            docker exec ningzhi-monitor-caddy grep -rl "test cicd" /app/frontend/monitor/dist/assets/ 2>/dev/null \
+              && echo '✅ 新文案已生效' \
+              || echo '⚠️ 警告: 新文案未生效，请检查挂载'
+
+            echo "==== 8. 部署完成，查看容器状态 ===="
             docker compose -f .devcontainer/docker-compose.production.yml ps
 
-            echo "==== 7. 清理旧镜像 ===="
+            echo "==== 9. 清理旧镜像 ===="
             docker image prune -f --filter "until=24h" || true
