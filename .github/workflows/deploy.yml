@@ -30,7 +30,8 @@ jobs:
           context: .
           file: apps/backend/monitor/Dockerfile
           push: true
-          tags: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_USERNAME }}/ningzhi-monitor-server:latest
+          # 镜像路径使用 ACR_NAMESPACE（必须全小写），不能用 ACR_USERNAME（可能含大写）
+          tags: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-server:latest
 
       # ============ 构建前端 ============
       - name: Set up Node.js
@@ -97,8 +98,8 @@ jobs:
               -u ${{ secrets.ACR_USERNAME }} \
               -p ${{ secrets.ACR_PASSWORD }}
 
-            # 拉取最新镜像
-            docker pull ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_USERNAME }}/ningzhi-monitor-server:latest
+            # 拉取最新后端镜像（从 ACR，国内速度快）
+            docker pull ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-server:latest
 
             # 重新启动服务
             cd /home/ubuntu/main-monitor
