@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // 目标服务器地址
+        target: 'http://ningzhi-monitor-server:8081', // 目标服务器地址
         changeOrigin: true, // 改变源，解决跨域问题
       },
     },

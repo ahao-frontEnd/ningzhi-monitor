@@ -1,8 +1,10 @@
+aliyuncs
 Androw
 bitnami
 breakline
 clickhouse
 Elipssis
+esbuild
 eslintcache
 gitee
 hugeicons
@@ -10,6 +12,7 @@ Hypernova
 kafkajs
 Kamil
 metatype
+msgpackr
 Myśliwiec
 nestframework
 ningzhi
@@ -19,3 +22,4 @@ smtps
 TTFB
 vaul
 vite
+zstd

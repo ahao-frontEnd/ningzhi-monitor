@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+.pnpm-store
 dist
 build
 dist-ssr
@@ -34,3 +35,4 @@ suites
 
 .devcontainer/data
 .devcontainer/postgresql_data
+infra-images.tar

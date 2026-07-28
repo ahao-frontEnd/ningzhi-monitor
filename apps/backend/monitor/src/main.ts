@@ -36,6 +36,6 @@ async function bootstrap() {
   // 配置 swagger 文档
   SwaggerModule.setup('ningzhi/doc', app, swaggerDocument)
 
-  await app.listen(8080)
+  await app.listen(8081)
 }
 bootstrap()

@@ -1,0 +1,37 @@
+# 生产环境部署配置
+# 使用阿里云 ACR 预构建镜像，服务器拉取速度快
+
+include:
+  - docker-compose.yml
+  
+services:
+  # 后端服务 - 使用 ACR 预构建镜像
+  ningzhi-monitor-server:
+    image: registry.cn-hangzhou.aliyuncs.com/<你的阿里云账号>/ningzhi-monitor-server:latest
+    container_name: ningzhi-monitor-server
+    ports:
+      - 8081:8081
+    depends_on:
+      - ningzhi-monitor-postgresql
+      - ningzhi-monitor-redis
+      - ningzhi-monitor-clickhouse
+      - ningzhi-monitor-kafka
+    restart: unless-stopped
+
+  # Caddy 反向代理
+  ningzhi-monitor-caddy:
+    image: caddy:latest
+    container_name: ningzhi-monitor-caddy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./caddy:/etc/caddy
+      - /home/ningzhi/frontend-dist:/app/frontend/monitor/dist
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,71 @@
+# 本地调试示例
+# localhost {
+
+#         encode zstd gzip
+
+#         header +Cache-Control "max-age=0, private, must-revalidate"
+
+#         handle /api* {
+#                 reverse_proxy ningzhi-monitor-server:8081
+#         }
+
+ #        uri strip_suffix /
+
+ #        root * /app/frontend/monitor/dist
+
+ #        handle {
+#                 templates
+#                 try_files {path}.html {path} /
+#                 file_server
+#         }
+
+# }  
+
+# 域名部署 - 自动启用 HTTPS + Let's Encrypt 证书
+# 去掉 http:// 前缀，Caddy 会自动获取 SSL 证书
+monitor.ningzhi2.site {
+
+        encode zstd gzip
+
+        header +Cache-Control "max-age=0, private, must-revalidate"
+
+        handle /api* {
+                reverse_proxy ningzhi-monitor-server:8081
+        }
+
+        uri strip_suffix /
+
+        root * /app/frontend/monitor/dist
+
+        handle {
+                templates
+                try_files {path}.html {path} /
+                file_server
+        }
+
+}
+
+
+# 线上监控示例（本地部署时注释掉，避免 Let's Encrypt 证书获取失败）
+# monitor.ningzhi.com {
+# 
+#         encode zstd gzip
+# 
+#         header +Cache-Control "max-age=0, private, must-revalidate"
+# 
+#         handle_path /api/* {
+#                 rewrite * /api{path}
+#                 reverse_proxy 159.75.9.178:8081
+#         }
+# 
+#         uri strip_suffix /
+# 
+#         root * /app/frontend/monitor/dist
+# 
+#         handle {
+#                 templates
+#                 try_files {path}.html {path} /
+#                 file_server
+#         }
+# 
+# }

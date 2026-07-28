@@ -17,7 +17,7 @@ services:
             - KAFKA_NODE_ID=1 # 节点 ID，用于集群识别
             - KAFKA_PROCESS_ROLES=broker,controller # 节点角色，broker 是普通节点，controller 是控制器节点，
             # broker 是普通节点，用于处理消息；controller 是控制器节点，用于协调集群操作。
-            - KAFKA_CONTROLLER_QUORUM_VOTERS=1@192.168.1.105:9093 # 用于协调集群操作，指定控制器节点， 192.168.1.105 是宿主机的 IP 地址
+            - KAFKA_CONTROLLER_QUORUM_VOTERS=1@ningzhi-monitor-kafka:9093 # 使用容器名而非 IP，确保在任意环境下都能正常工作
             - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094 # 监听端口，用于接收消息和协调集群操作，
             # 9092 是普通节点端口，用于接收消息；9093 是控制器节点端口，用于协调集群操作；0.0.0.0:9094 是外部端口，用于接收消息。
             - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://ningzhi-monitor-kafka:9092,EXTERNAL://localhost:9094 # 广播的监听端口，用于外部连接，

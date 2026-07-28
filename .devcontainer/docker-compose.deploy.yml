@@ -1,0 +1,29 @@
+include:
+  - docker-compose.yml
+  
+services:
+  # 应用部署相关
+  ningzhi-monitor-server:
+    build:
+      context: ..
+      dockerfile: apps/backend/monitor/Dockerfile
+    image: ningzhi-monitor-server:latest
+    container_name: ningzhi-monitor-server
+    ports:
+      - 8081:8081
+    depends_on:
+      - ningzhi-monitor-postgresql
+      - ningzhi-monitor-redis
+      - ningzhi-monitor-clickhouse
+      - ningzhi-monitor-kafka
+    restart: unless-stopped
+  # 代理相关
+  ningzhi-monitor-caddy:
+      image: caddy:latest
+      container_name: ningzhi-monitor-caddy
+      ports:
+        - 80:80
+        - 443:443
+      volumes:
+        - ./caddy:/etc/caddy
+        - ../apps/frontend/monitor/dist:/app/frontend/monitor/dist

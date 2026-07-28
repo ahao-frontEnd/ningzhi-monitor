@@ -25,7 +25,7 @@ export function init(options: { dsn: string; integrations: Integration[] }) {
  * import { init, Errors, Metrics } from '@ningzhi/monitor-sdk-browser'
  *
  * const monitoring = init({
- *    dsn: 'http://localhost:3000',
+ *    dsn: 'http://localhost:8080/api/v1/monitoring/reactRqL9vG',
  *   integrations: [new Errors(), new Metrics()],
  * })
  */
