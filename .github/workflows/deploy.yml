@@ -92,9 +92,10 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          source: '.devcontainer/*'
-          target: '/home/ubuntu/main-monitor/.devcontainer/'
+          source: '.devcontainer'
+          target: '/home/ubuntu/main-monitor/'
           rm: true
+          strip_components: 0
 
       # ============ 在服务器上登录 ACR 并拉取镜像 ============
       - name: Deploy to Server
@@ -114,7 +115,10 @@ jobs:
 
             echo "==== 2. 检查部署目录 ===="
             mkdir -p /home/ubuntu/main-monitor
-            ls -la /home/ubuntu/main-monitor/.devcontainer/
+            echo '--- 目录结构 ---'
+            find /home/ubuntu/main-monitor -maxdepth 3 -type f 2>/dev/null || true
+            echo '--- .devcontainer 内容 ---'
+            ls -la /home/ubuntu/main-monitor/.devcontainer/ 2>/dev/null || echo '.devcontainer 不存在'
 
             echo "==== 3. 拉取最新后端镜像 ===="
             docker pull ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-server:latest
