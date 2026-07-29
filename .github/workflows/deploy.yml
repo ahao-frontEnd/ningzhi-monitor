@@ -126,21 +126,31 @@ jobs:
             echo "==== 4. 拉取最新后端镜像 ===="
             docker pull ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-server:latest
 
-            echo "==== 5. 重启后端服务（不影响数据库等基础设施）===="
+            echo "==== 5. 确保基础设施运行 ===="
             cd /home/ubuntu/main-monitor
+            # 启动所有基础设施（如果未运行）
+            docker compose -f .devcontainer/docker-compose.production.yml up -d \
+              ningzhi-monitor-postgresql \
+              ningzhi-monitor-redis \
+              ningzhi-monitor-clickhouse \
+              ningzhi-monitor-kafka
+            # 等数据库就绪
+            sleep 15
+
+            echo "==== 6. 重启后端服务 ===="
             docker compose -f .devcontainer/docker-compose.production.yml up -d \
               --no-deps \
               --force-recreate \
               ningzhi-monitor-server
 
-            echo "==== 6. 重建 Caddy 容器（加载最新前端文件）===="
+            echo "==== 7. 重建 Caddy 容器（加载最新前端文件）===="
             # 必须用 --force-recreate 重建 Caddy，否则不会重新挂载前端目录
             docker compose -f .devcontainer/docker-compose.production.yml up -d \
               --no-deps \
               --force-recreate \
               ningzhi-monitor-caddy
 
-            echo "==== 7. 验证前端文件挂载 ===="
+            echo "==== 8. 验证前端文件挂载 ===="
             echo '--- 宿主机前端文件 ---'
             ls -la /home/ubuntu/frontend-dist/ | head -10
             echo '--- 容器内前端文件 ---'
@@ -150,7 +160,7 @@ jobs:
               && echo '✅ 新文案已生效' \
               || echo '⚠️ 警告: 新文案未生效，请检查挂载'
 
-            echo "==== 8. 部署完成，查看容器状态 ===="
+            echo "==== 9. 部署完成，查看容器状态 ===="
             docker compose -f .devcontainer/docker-compose.production.yml ps
 
             echo "==== 9. 清理旧镜像 ===="

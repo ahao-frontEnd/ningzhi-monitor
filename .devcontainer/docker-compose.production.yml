@@ -31,6 +31,8 @@ services:
       - /home/ubuntu/frontend-dist:/app/frontend/monitor/dist
       - caddy_data:/data
       - caddy_config:/config
+      # 无代码可视化平台 前端资源挂载
+      - /home/ubuntu/builder-dist:/app/frontend/builder/dist:ro # read only
     restart: unless-stopped
 
 volumes:

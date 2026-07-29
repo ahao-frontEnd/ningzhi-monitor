@@ -69,3 +69,19 @@ monitor.ningzhi2.site {
 #         }
 # 
 # }
+
+
+# ===== 新增：builder 前端 =====
+builder.ningzhi2.site {
+    encode zstd gzip
+
+    header +Cache-Control "max-age=0, private, must-revalidate"
+
+    root * /app/frontend/builder/dist
+
+    handle {
+        # Vue SPA 回退
+        try_files {path} {path}/ /index.html
+        file_server
+    }
+}
