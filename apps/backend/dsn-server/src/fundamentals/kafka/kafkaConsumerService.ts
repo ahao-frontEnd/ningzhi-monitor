@@ -17,7 +17,7 @@ export class KafkaConsumerService implements OnModuleInit {
     options: {
       client: {
         clientId: 'ningzhi-monitor',
-        brokers: ['localhost:9092'], // Kafka 服务器地址
+        brokers: ['localhost:9094'], // Kafka 服务器地址
       },
       // 消费者配置
       consumer: {
