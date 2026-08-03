@@ -58,10 +58,19 @@ export function Login() {
         })
         setInputType('login')
       }
-    } catch {
+    } catch (err) {
+      // @ts-expect-error res is not defined
+      const msg = err?.response?.data?.message
+      if (inputType === 'register') {
+        toast({
+          variant: 'destructive',
+          title: `注册失败，${msg}`,
+        })
+        return
+      }
       toast({
         variant: 'destructive',
-        title: '登录失败，请稍后重试',
+        title: `登录失败，用户名或密码错误，请重试`,
       })
     }
   }
