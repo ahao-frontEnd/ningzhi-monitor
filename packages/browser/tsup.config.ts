@@ -20,8 +20,5 @@ export default defineConfig([
     clean: true, // 构建前清理输出目录
     minify: true, // 压缩输出文件
     outDir: 'build/esm', // 输出目录
-    outExtension() {
-      return { js: '.js' } // 将输出文件的扩展名改为 .js
-    },
   },
 ])

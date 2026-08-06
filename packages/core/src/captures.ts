@@ -1,6 +1,22 @@
-export function captureException() {}
+import { getTransport } from './baseClient'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function captureMessage(message: string) {}
+export function captureException(exception: Error) {
+  getTransport()?.send({ type: 'customError', exception })
+}
 
-export function captureEvent() {}
+export function captureMessage(message: string) {
+  getTransport()?.send({ type: 'customMessage', message })
+}
+
+/**
+ * 自定义事件
+ * @param event
+ * @param data
+ */
+interface EventData<T> {
+  eventType: string
+  data: T
+}
+export function captureEvent<T>(eventData: EventData<T>) {
+  getTransport()?.send({ type: 'customEvent', eventData })
+}

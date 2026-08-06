@@ -5,6 +5,6 @@ export { Integration } from './types'
 
 export type { Transport } from './transport'
 
-export { Monitoring } from './baseClient'
+export { Monitoring, getTransport } from './baseClient'
 
 export { captureEvent, captureException, captureMessage } from './captures'

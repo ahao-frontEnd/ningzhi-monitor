@@ -15,7 +15,7 @@ CREATE TABLE kafka_monitor
     value String   -- Kafka 消息的 Value（字符串类型，这里是 JSON 格式）
 ) ENGINE = Kafka  -- 使用 Kafka 引擎，让 ClickHouse 成为 Kafka 消费者
       SETTINGS 
-          kafka_broker_list = 'localhost:9092',  -- Kafka 服务器地址和端口
+          kafka_broker_list = 'localhost:9094',  -- Kafka 服务器地址和端口
           kafka_topic_list = 'monitor',           -- 要消费的 Kafka 主题名称
           kafka_group_name = 'monitor',           -- 消费者组名称（用来协调多个消费者）
           kafka_format = 'JSONEachRow',           -- 数据格式：每行一条 JSON

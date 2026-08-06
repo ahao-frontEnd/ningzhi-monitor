@@ -85,3 +85,34 @@ builder.ningzhi2.site {
         file_server
     }
 }
+
+
+# AI聊天系统
+chat.ningzhi2.site {
+    encode zstd gzip
+
+    header +Cache-Control "max-age=0, private, must-revalidate"
+
+    # 后端 API 反向代理（SSE 流式响应需即时刷新缓冲区）
+    handle /api* {
+        reverse_proxy ningzhi-chat-server:3000 {
+            # SSE 关键：立即刷新响应缓冲区，保证流式输出
+            flush_interval -1
+
+            # 长连接超时（流式生成可能较慢）
+            transport http {
+                read_timeout 5m
+                write_timeout 5m
+                dial_timeout 30s
+            }
+        }
+    }
+
+    root * /app/frontend/chat/dist
+
+    handle {
+        # Vue SPA 回退
+        try_files {path} {path}/ /index.html
+        file_server
+    }
+}

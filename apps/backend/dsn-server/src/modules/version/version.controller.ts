@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common'
+import { Body, Controller, Get, Logger, Param, Post } from '@nestjs/common'
 
 import { VersionService } from './version.service'
 
@@ -11,8 +11,10 @@ export class VersionController {
     return this.versionService.getVersion()
   }
 
-  @Get('tracking')
-  tracking(@Query() params: { event_type: string; message: string }): any {
+  @Post('tracing/:app_id')
+  tracking(@Param() { app_id }: { app_id: string }, @Body() params: { event_type: string; message: string }): any {
+    Logger.log('app_id ===> ', app_id)
+    Logger.log('params ===> ', params)
     return this.versionService.tracking(params)
   }
 

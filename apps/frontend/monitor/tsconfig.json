@@ -5,6 +5,7 @@
     // baseUrl 用于指定项目根目录，路径别名的根目录。
     // paths 用于指定路径别名，将 @ 符号替换为 src 目录
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["src/*"]
     }

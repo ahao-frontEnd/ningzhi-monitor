@@ -6,6 +6,7 @@ breakline
 Buildx
 cicd
 clickhouse
+dependencygraph
 Elipssis
 esbuild
 eslintcache
