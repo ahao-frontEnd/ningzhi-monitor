@@ -35,6 +35,7 @@ export class Metrics {
       ;[onCLS, onLCP, onFCP, onTTFB, onLoad].forEach(metricFn => {
         metricFn(metric => {
           this.transport.send({
+            event_type: 'performance',
             type: 'webVital',
             name: metric.name,
             value: metric.value,

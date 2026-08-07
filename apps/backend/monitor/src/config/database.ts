@@ -4,8 +4,8 @@ export default () => ({
   database: {
     type: 'postgres',
     // host: 'localhost',
-    // host: '192.168.1.103',
-    host: 'ningzhi-monitor-postgresql',
+    host: '192.168.1.102',
+    // host: 'ningzhi-monitor-postgresql',
     port: 5432,
     database: 'postgres',
     username: 'postgres',

@@ -85,7 +85,7 @@ export function Dashboard() {
                   axisLine={false}
                   tickMargin={4}
                   tickFormatter={value => {
-                    return new Date(value).toLocaleDateString('en-US', {
+                    return new Date(value).toLocaleDateString('zh-CN', {
                       weekday: 'short',
                     })
                   }}
@@ -96,7 +96,7 @@ export function Dashboard() {
                     <ChartTooltipContent
                       hideIndicator
                       labelFormatter={value => {
-                        return new Date(value).toLocaleDateString('en-US', {
+                        return new Date(value).toLocaleDateString('zh-CN', {
                           day: 'numeric',
                           month: 'long',
                           year: 'numeric',
@@ -202,7 +202,7 @@ export function Dashboard() {
                   axisLine={false}
                   tickMargin={8}
                   tickFormatter={value => {
-                    return new Date(value).toLocaleDateString('en-US', {
+                    return new Date(value).toLocaleDateString('zh-CN', {
                       weekday: 'short',
                     })
                   }}
@@ -225,7 +225,7 @@ export function Dashboard() {
                     <ChartTooltipContent
                       indicator="line"
                       labelFormatter={value => {
-                        return new Date(value).toLocaleDateString('en-US', {
+                        return new Date(value).toLocaleDateString('zh-CN', {
                           day: 'numeric',
                           month: 'long',
                           year: 'numeric',

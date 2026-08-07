@@ -1,11 +1,11 @@
 import { getTransport } from './baseClient'
 
 export function captureException(exception: Error) {
-  getTransport()?.send({ type: 'customError', exception })
+  getTransport()?.send({ event_type: 'custom', type: 'customError', exception })
 }
 
 export function captureMessage(message: string) {
-  getTransport()?.send({ type: 'customMessage', message })
+  getTransport()?.send({ event_type: 'custom', type: 'customMessage', message })
 }
 
 /**
@@ -18,5 +18,5 @@ interface EventData<T> {
   data: T
 }
 export function captureEvent<T>(eventData: EventData<T>) {
-  getTransport()?.send({ type: 'customEvent', eventData })
+  getTransport()?.send({ event_type: 'custom', type: 'customEvent', eventData })
 }

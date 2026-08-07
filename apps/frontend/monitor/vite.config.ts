@@ -15,8 +15,16 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://ningzhi-monitor-server:8081', // 目标服务器地址
+        // target: 'http://ningzhi-monitor-server:8081', // 目标服务器地址
+        target: 'http://localhost:8081', // 目标服务器地址
         changeOrigin: true, // 改变源，解决跨域问题
+      },
+      '/dsn-api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite(path) {
+          return path.replace(/^\/dsn-api/, '/api')
+        },
       },
     },
   },

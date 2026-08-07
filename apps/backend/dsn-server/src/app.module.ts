@@ -6,7 +6,7 @@ import databaseConfig from './config/database'
 import { ClickhouseModule } from './fundamentals/clickhouse/clickhouse.module'
 import { LoggerMiddleware } from './fundamentals/common/middleware/logger.middleware'
 import { AuthModule } from './modules/auth/auth.module'
-import { VersionModule } from './modules/version/version.module'
+import { SpanModule } from './modules/span/span.module'
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { VersionModule } from './modules/version/version.module'
       inject: [ConfigService], // 注入 ConfigService 服务，用于获取配置文件中的数据库配置
     }),
     AuthModule,
-    VersionModule,
+    SpanModule,
     ClickhouseModule.forRoot({
       url: 'http://localhost:8123',
       username: 'default',

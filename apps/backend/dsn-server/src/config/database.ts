@@ -3,7 +3,7 @@ import { join } from 'node:path'
 export default () => ({
   database: {
     type: 'postgres',
-    host: '192.168.1.100',
+    host: '192.168.1.102',
     port: 5432,
     database: 'postgres',
     username: 'postgres',

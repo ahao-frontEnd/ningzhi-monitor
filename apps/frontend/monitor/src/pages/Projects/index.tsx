@@ -26,15 +26,23 @@ export function Projects() {
     queryKey: ['applications'],
     queryFn: async () => {
       const res = await srv.fetchApplicationList()
+      const allEvents = await fetch('/dsn-api/span')
+      const allEventsData = await allEvents.json()
       return res.data.applications.map(app => {
+        // 错误
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const bugs = allEventsData.filter((event: any) => event.app_id === app.appId && event.event_type === 'error')
+        // 事务
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transactions = allEventsData.filter((event: any) => event.app_id === app.appId && event.event_type !== 'error')
         const data = new Array(7).fill(0).map((_, index) => ({
           date: new Date(new Date().setDate(new Date().getDate() - index)).toISOString(),
           resting: Math.floor(Math.random() * (100 - 20) + 20),
         }))
         return {
           ...app,
-          bugs: Math.floor(Math.random() * (100 - 20) + 20),
-          transactions: Math.floor(Math.random() * (100 - 20) + 20),
+          bugs: bugs.length,
+          transactions: transactions.length,
           data,
         }
       })
@@ -139,7 +147,7 @@ export function Projects() {
                 axisLine={false}
                 tickMargin={8}
                 tickFormatter={value => {
-                  return new Date(value).toLocaleDateString('en-US', {
+                  return new Date(value).toLocaleDateString('zh-CN', {
                     weekday: 'short',
                   })
                 }}
@@ -162,7 +170,7 @@ export function Projects() {
                   <ChartTooltipContent
                     indicator="line"
                     labelFormatter={value => {
-                      return new Date(value).toLocaleDateString('en-US', {
+                      return new Date(value).toLocaleDateString('zh-CN', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',
