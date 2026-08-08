@@ -20,11 +20,12 @@ export default defineConfig({
         changeOrigin: true, // 改变源，解决跨域问题
       },
       '/dsn-api': {
-        // target: 'http://localhost:8080',
-        target: 'https://monitor.ningzhi2.site',
+        target: 'http://localhost:8080',
+        // target: 'https://monitor.ningzhi2.site',
         changeOrigin: true,
         rewrite(path) {
-          return path.replace(/^\/dsn-api/, '/dsn-api')
+          return path.replace(/^\/dsn-api/, '/api') // 本地
+          // return path.replace(/^\/dsn-api/, '/dsn-api')  // 线上
         },
       },
     },

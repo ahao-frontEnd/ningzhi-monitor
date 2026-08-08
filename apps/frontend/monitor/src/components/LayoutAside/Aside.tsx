@@ -78,7 +78,7 @@ export function Aside() {
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
           <a href="/" className="flex items-center gap-2 ">
-            <img className="w-10" src="https://www.miaomaedu.com/study_service/study_service_5.svg" />
+            <span>📹</span>
             <p className="font-semibold text-lg">Ningzhi - 监控平台</p>
           </a>
         </div>

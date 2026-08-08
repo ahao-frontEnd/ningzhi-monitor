@@ -22,14 +22,53 @@ services:
             - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT # 监听端口安全协议映射，用于指定不同监听端口的安全协议，
             - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER # 控制器节点监听端口，用于协调集群操作，
             - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT # 普通节点监听端口，用于接收消息，
+        healthcheck:                           # 健康检查：用于判断 Kafka 是否完全启动（供 kafka-init 等待）
+            test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+            interval: 5s
+            timeout: 5s
+            retries: 20
+            start_period: 10s
         # volumes:                              # 数据持久化：把容器内数据保存到宿主机
         #     - ./kafka_data:/bitnami/kafka/data  # 注释掉的是数据持久化配置，启用后可防止数据丢失
+
+    # ============ Kafka 一次性初始化服务 ============
+    # Kafka 4.x KIP-848 已知问题：新 group coordinator 不会自动创建 __consumer_offsets topic，
+    # 导致 ClickHouse 的 Kafka 引擎表消费者收到 COORDINATOR_NOT_AVAILABLE，消息堆积不落盘。
+    # 此服务在 Kafka 完全启动后自动创建必要 topics，执行完毕即退出（restart: no）。
+    # --if-not-exists 保证幂等：topic 已存在时跳过，不会因重复执行报错。
+    ningzhi-monitor-kafka-init:
+        image: apache/kafka
+        container_name: ningzhi-monitor-kafka-init
+        depends_on:
+            ningzhi-monitor-kafka:
+                condition: service_healthy     # 等 Kafka 完全启动后再执行
+        command:
+            - /bin/bash
+            - -c
+            - |
+                echo "==== Kafka init: creating required topics ===="
+                # 1. __consumer_offsets（KIP-848 修复：消费者组协调器依赖此 topic）
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server ningzhi-monitor-kafka:9092 \
+                  --create --if-not-exists \
+                  --topic __consumer_offsets --partitions 50 --replication-factor 1 \
+                  --config cleanup.policy=compact
+                echo "✅ __consumer_offsets created (or already exists)"
+                # 2. monitor（业务 topic，提前创建避免首次发送时的延迟）
+                /opt/kafka/bin/kafka-topics.sh --bootstrap-server ningzhi-monitor-kafka:9092 \
+                  --create --if-not-exists \
+                  --topic monitor --partitions 1 --replication-factor 1
+                echo "✅ monitor created (or already exists)"
+                echo "==== Kafka init done ===="
+        restart: "no"
 
     # ============ ClickHouse 分析型数据库 ============
     # ClickHouse 用于快速分析大量数据，适合做数据仓库和实时分析
     ningzhi-monitor-clickhouse:
         image: clickhouse:25.10               # 使用官方 ClickHouse 镜像，版本 25.10
         container_name: ningzhi-monitor-clickhouse
+        depends_on:
+            ningzhi-monitor-kafka-init:
+                condition: service_completed_successfully  # 等 kafka-init 创建完 topics 再启动，确保消费者能正常接入
         ports:
             - '8123:8123'                      # 8123: HTTP 接口，用于 Web UI 和 HTTP 请求
             - '9000:9000'                      # 9000: Native 接口，用于客户端工具连接

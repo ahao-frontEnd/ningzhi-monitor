@@ -62,7 +62,8 @@ export class SpanService {
 
   // 查询数据：同时查询 base_monitor_view（Kafka 管道落盘）和 base_monitor_storage（direct 写入兜底）
   // 两层写入互不影响，UNION ALL 保证任何路径的数据都能被查到
-  async span() {
+  async span(app_id?: string) {
+    const appFilter = app_id ? `WHERE app_id = '${app_id.replace(/'/g, "''")}'` : ''
     const query = `
         SELECT
             app_id,
@@ -71,15 +72,19 @@ export class SpanService {
             info,
             concat('Ningzhi ==> ', event_type) AS processed_message
         FROM base_monitor_storage
+        ${appFilter}
         UNION ALL
         SELECT * FROM base_monitor_view
+        ${appFilter}
     `
     const res = await this.clickHouseClient.query({ query })
     const queryResult = await res.json()
     return queryResult.data
   }
 
-  async bugs() {
+  async bugs(app_id?: string) {
+    const baseFilter = app_id ? `WHERE event_type = 'error' AND app_id = '${app_id.replace(/'/g, "''")}'` : "WHERE event_type = 'error'"
+    const outerFilter = app_id ? `WHERE app_id = '${app_id.replace(/'/g, "''")}'` : ''
     const query = `
         SELECT * FROM (
             SELECT
@@ -89,11 +94,12 @@ export class SpanService {
                 info,
                 concat('Ningzhi ==> ', event_type) AS processed_message
             FROM base_monitor_storage
-            WHERE event_type = 'error'
+            ${baseFilter}
             UNION ALL
             SELECT * FROM base_monitor_view
-            WHERE event_type = 'error'
+            ${baseFilter}
         )
+        ${outerFilter}
     `
     const res = await this.clickHouseClient.query({
       query,

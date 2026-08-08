@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Param, Post } from '@nestjs/common'
+import { Body, Controller, Get, Logger, Param, Post, Query } from '@nestjs/common'
 
 import { SpanService } from './span.service'
 
@@ -19,12 +19,12 @@ export class SpanController {
   }
 
   @Get('span')
-  span() {
-    return this.spanService.span()
+  span(@Query('app_id') app_id?: string) {
+    return this.spanService.span(app_id)
   }
 
   @Get('bugs')
-  bugs() {
-    return this.spanService.bugs()
+  bugs(@Query('app_id') app_id?: string) {
+    return this.spanService.bugs(app_id)
   }
 }

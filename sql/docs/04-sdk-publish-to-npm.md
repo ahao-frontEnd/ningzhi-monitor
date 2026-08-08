@@ -160,6 +160,38 @@ npm view @ningzhi/monitor-sdk-browser
 - **根因**：创建的是 **Granular Access Token**，但没有正确配置 packages 的 scope 与写权限
 - **解决**：见下方「正确的 Token 配置」
 
+### 坑 6：pnpm 缓存了 404 元数据 → 包已发布仍报 404
+
+- **现象**：三个包都能 `npm view` 查到（已成功发布），但 monorepo 内 demos 项目写固定版本 `1.0.0` 后 `pnpm i` 仍然报：
+  ```
+  ERR_PNPM_FETCH_404  GET https://registry.npmjs.org/@ningzhi%2Fmonitor-sdk-browser Not Found - 404
+  An authorization header was used: Bearer npm_[hidden]
+  ```
+- **根因**：发布之前 demos 已经把依赖从 `workspace:*` 改成了 `1.0.0` 并跑过一次 `pnpm i`，当时包还没发布，pnpm 请求 registry 得到 404 并把 **not-found 响应缓存**进了 store metadata（`pnpm store prune` 时输出 "Removed all cached metadata files" 证实了这点）。之后包发布了，但 pnpm 还在用旧的 404 缓存。
+- **解决**：清空 pnpm store 元数据 + 包缓存后重新安装：
+  ```powershell
+  # 清所有 pnpm 缓存（包 + 元数据）
+  pnpm store prune
+  # 清掉 demos 的 node_modules（可选，保险起见）
+  Remove-Item -Recurse -Force demos\vanilla\node_modules
+  # 重新安装，强制重新走 registry 查询不走缓存
+  pnpm i --no-frozen-lockfile
+  ```
+
+### 坑 7：lockfile 与 package.json 版本号不匹配 → `ERR_PNPM_OUTDATED_LOCKFILE`
+
+- **现象**：把 demos 依赖从 `workspace:*` 改成 `1.0.0` 后 `pnpm i` 报错：
+  ```
+  ERR_PNPM_OUTDATED_LOCKFILE  Cannot install with "frozen-lockfile" because pnpm-lock.yaml is not up to date
+  specifiers in the lockfile don't match specifiers in package.json:
+  * @ningzhi/monitor-sdk-browser (lockfile: workspace:*, manifest: 1.0.0)
+  ```
+- **根因**：之前写 `workspace:*` 时生成的 pnpm-lock.yaml 与现在写固定版本 `1.0.0` 的 package.json 不一致，而当前 shell 或 CI 环境下 pnpm 用了 frozen-lockfile 模式（不允许修改 lockfile）
+- **解决**：加 `--no-frozen-lockfile` 让 pnpm 重新解析依赖并更新 lockfile：
+  ```powershell
+  pnpm i --no-frozen-lockfile
+  ```
+
 ---
 
 ## 六、正确的 Token 配置（核心解决方案）
@@ -254,9 +286,61 @@ pnpm -r publish --no-git-checks
 
 6. **Granular Token 的最小权限原则**：新版 npm 推荐细粒度 token，需精确配置 scope 范围与读写权限，体现对发布凭据的安全管控
 
+7. **发布后包的缓存一致性问题**：pnpm 会缓存 registry 的 404 元数据，即使包后来发布成功，命中缓存的项目仍会报 Not Found —— 必须 `pnpm store prune` 清缓存后重装
+
+8. **workspace 协议与固定版本号的适用边界**：monorepo 内成员对另一个成员的依赖，`workspace:*` 链接本地源码（实时生效，适合本地开发），固定版本 `1.0.0` 从 registry 下载（验证线上包发布效果，但每次改动需重新 build+publish）
+
 ---
 
-## 十、快速发布清单（每次发布对照）
+## 十、发布后验证：在 monorepo 内部 demos 验证线上包 vs 本地开发
+
+### `workspace:*` vs 固定版本 `1.0.0` 的取舍
+
+demos/vanilla 与 packages/browser 都是 workspace 成员，两种写法效果完全不同：
+
+| 依赖写法                                        | 解析来源                         | node_modules 链接 Target                                        | 适用场景                                                     |
+| ----------------------------------------------- | -------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------ |
+| `"@ningzhi/monitor-sdk-browser": "workspace:*"` | 链接本地 `packages/browser` 源码 | `.../packages/browser`                                          | 日常开发：改 SDK 代码 demos 即时生效，免重新发布 ✅ 推荐默认 |
+| `"@ningzhi/monitor-sdk-browser": "1.0.0"`       | 从 npm registry 下载 tarball     | `.../node_modules/.pnpm/@ningzhi+monitor-sdk-browser@1.0.0/...` | 发布后验证：确认线上包真能被正常下载、import、运行           |
+
+> ⚠️ 注意：写固定版本时不要使用 `link-workspace-packages`（pnpm 默认仅对 `workspace:` 协议链接本地，普通版本号会走 registry，因此能验证线上包）。
+
+### 验证线上发布包的完整步骤
+
+```powershell
+# Step 1：把 demos 依赖从 workspace:* 改成固定版本 1.0.0
+# demos/vanilla/package.json:
+#   "@ningzhi/monitor-sdk-core": "1.0.0",
+#   "@ningzhi/monitor-sdk-browser": "1.0.0"
+
+# Step 2：清 pnpm 缓存（关键！否则命中旧的 404 缓存）
+pnpm store prune
+
+# Step 3：重新安装（允许更新 lockfile）
+pnpm i --no-frozen-lockfile
+```
+
+### 验证成功的证据（三条全中才算真的用了线上包）
+
+1. **node_modules 链接 Target**：指向 `.pnpm/@ningzhi+monitor-sdk-browser@1.0.0/...`，而非 `packages/browser` 本地源码
+   ```powershell
+   (Get-Item demos/vanilla/node_modules/@ningzhi/monitor-sdk-browser).Target
+   # 应输出包含 ".pnpm/@ningzhi+monitor-sdk-browser@1.0.0" 的路径
+   ```
+2. **pnpm-lock.yaml**：有独立的 `resolution: {integrity: sha512-...}`（与发布时 npm 返回的 integrity 一致），而非 workspace 引用
+   ```powershell
+   Select-String pnpm-lock.yaml -Pattern "monitor-sdk-browser@1\.0\.0" -Context 0,2
+   # 应看到 resolution: {integrity: sha512-...}
+   ```
+3. **构建产物存在**：`build/` 目录（cjs / esm / types 三套）齐全，package.json 版本为 `1.0.0`
+
+### 验证完建议改回 workspace:\*
+
+线上包验证无误后，建议把 demos 依赖改回 `workspace:*`，否则每次改 SDK 都要重新发布 npm 才能看到效果，调试效率极低。
+
+---
+
+## 十一、快速发布清单（每次发布对照）
 
 - [ ] 代码改动已提交
 - [ ] `package.json` 的 `version` 已升级（或用 `pnpm -r version patch`）
@@ -266,3 +350,5 @@ pnpm -r publish --no-git-checks
 - [ ] `~/.npmrc` 中有有效的 bypass 2FA token（`npm whoami` 正常）
 - [ ] 按顺序发布：core → browser-utils → browser
 - [ ] `npm view @ningzhi/monitor-sdk-browser` 验证版本号已更新
+- [ ] **（可选）demos 改固定版本 + `pnpm store prune` + `pnpm i --no-frozen-lockfile`，验证线上包可被正常下载使用**
+- [ ] 验证完毕 demos 改回 `workspace:*`
