@@ -47,8 +47,8 @@ services:
       - caddy_config:/config
       # 无代码可视化平台前端资源挂载
       - /home/ubuntu/builder-dist:/app/frontend/builder/dist:ro # read only
-       # AI Chat 平台 前端资源挂载
-      - /home/ubuntu/builder-dist:/app/frontend/chat/dist:ro # read only
+      # AI Chat 平台 前端资源挂载
+      - /home/ubuntu/chat-dist:/app/frontend/chat/dist:ro # read only
     restart: unless-stopped
 
 volumes:
