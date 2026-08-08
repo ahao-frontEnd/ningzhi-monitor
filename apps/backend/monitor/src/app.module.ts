@@ -21,9 +21,11 @@ import { VersionModule } from './modules/version/version.module'
       inject: [ConfigService], // 注入 ConfigService 服务，用于获取配置文件中的数据库配置
     }),
     ClickhouseModule.forRoot({
-      url: 'http://localhost:8123',
-      username: 'default',
-      password: 'ningzhiClickhouse',
+      // 从环境变量读取，默认用 Docker 服务名（生产环境）
+      // 本地开发时在 .env 设置 CLICKHOUSE_HOST=localhost
+      url: `http://${process.env.CLICKHOUSE_HOST || 'ningzhi-monitor-clickhouse'}:8123`,
+      username: process.env.CLICKHOUSE_USERNAME || 'default',
+      password: process.env.CLICKHOUSE_PASSWORD || 'ningzhiClickhouse',
     }),
     VersionModule,
     AuthModule,
