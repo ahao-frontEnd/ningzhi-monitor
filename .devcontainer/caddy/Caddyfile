@@ -19,7 +19,7 @@
 #                 file_server
 #         }
 
-# }  
+# }
 
 # 域名部署 - 自动启用 HTTPS + Let's Encrypt 证书
 # 去掉 http:// 前缀，Caddy 会自动获取 SSL 证书
@@ -30,9 +30,10 @@ monitor.ningzhi2.site {
         header +Cache-Control "max-age=0, private, must-revalidate"
 
         # dsn-api 转发到 dsn-server（对应 vite.config.ts 的 /dsn-api 代理）
-        # 请求 /dsn-api/span → rewrite 成 /api/span → 转发到 dsn-server:8080
-        handle /dsn-api* {
-                rewrite ^/dsn-api(.*)$ /api$1
+        # 请求 /dsn-api/span → handle_path 自动 strip 成 /span → rewrite 加 /api 前缀成 /api/span → 转发到 dsn-server:8080
+        # handle_path 比 handle + rewrite 更可靠：自动剥离匹配的前缀，避免路径匹配歧义
+        handle_path /dsn-api/* {
+                rewrite * /api{path}
                 reverse_proxy ningzhi-monitor-dsn-server:8080
         }
 
@@ -55,26 +56,26 @@ monitor.ningzhi2.site {
 
 # 线上监控示例（本地部署时注释掉，避免 Let's Encrypt 证书获取失败）
 # monitor.ningzhi.com {
-# 
+#
 #         encode zstd gzip
-# 
+#
 #         header +Cache-Control "max-age=0, private, must-revalidate"
-# 
+#
 #         handle_path /api/* {
 #                 rewrite * /api{path}
 #                 reverse_proxy 159.75.9.178:8081
 #         }
-# 
+#
 #         uri strip_suffix /
-# 
+#
 #         root * /app/frontend/monitor/dist
-# 
+#
 #         handle {
 #                 templates
 #                 try_files {path}.html {path} /
 #                 file_server
 #         }
-# 
+#
 # }
 
 
