@@ -16,35 +16,35 @@ const menus = [
   {
     name: 'projects',
     icon: Package,
-    title: '项目总览',
+    title: '项目总览（real data）',
     gap: true,
   },
   {
     name: 'issues',
     icon: Bug,
-    title: '缺陷',
+    title: '缺陷（real data）',
     badge: 6,
   },
   {
     name: 'performance',
     icon: Zap,
-    title: '性能',
+    title: '性能（mock data）',
     gap: true,
   },
   {
     name: 'dashboard',
     icon: Lightbulb,
-    title: '监控',
+    title: '监控（mock data）',
   },
   {
     name: 'crons',
     icon: CalendarCheck,
-    title: '定时任务',
+    title: '定时任务（mock data）',
   },
   {
     name: 'alerts',
     icon: Siren,
-    title: '告警',
+    title: '告警（mock data）',
   },
 ]
 
@@ -122,7 +122,7 @@ export function Aside() {
                     <AvatarFallback>{currentUser.username}</AvatarFallback>
                   </Avatar>
                   <p className="text-left">
-                    <p className="text-lg">{currentUser.username}！</p>
+                    <p className="text-lg">{currentUser.username}</p>
                     庆祝一下 🎉
                   </p>
                 </>
