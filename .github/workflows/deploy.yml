@@ -71,8 +71,11 @@ jobs:
           name: frontend-dist
           path: dist
 
-      # ============ 在服务器上创建目标目录（必须在 SCP 之前）============
-      - name: Ensure target directories exist on server
+      # ============ 在服务器上创建目标目录并清理旧文件（必须在 SCP 之前）============
+      # 在这里手动清理旧文件，替代 SCP 的 rm:true
+      # 原因：drone-scp v1.6.14 的 rm:true 会执行 `rm -rf <target>` 删除整个目录，
+      # 紧接着 scp -t <target> 传输时目录可能尚未重建，导致 "Process exited with status 1"
+      - name: Ensure target directories exist and clean on server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -82,12 +85,19 @@ jobs:
           script: |
             set -e
             mkdir -p /home/ubuntu/frontend-dist
-            mkdir -p /home/ubuntu/main-monitor
-            echo "Directories created/verified:"
-            ls -la /home/ubuntu/ | grep -E 'frontend-dist|main-monitor'
+            mkdir -p /home/ubuntu/main-monitor/.devcontainer
+            # 清理旧文件（保留目录本身，避免 drone-scp rm 整个目录导致 scp 失败）
+            rm -rf /home/ubuntu/frontend-dist/* 2>/dev/null || true
+            rm -rf /home/ubuntu/main-monitor/.devcontainer/* 2>/dev/null || true
+            echo "==== Directories prepared: ===="
+            ls -la /home/ubuntu/frontend-dist/
+            ls -la /home/ubuntu/main-monitor/.devcontainer/
 
       # ============ 上传前端文件到服务器 ============
-      # 注意：使用整个目录 'dist' 而非 glob 'dist/*'，避免 drone-scp 路径结构错误（参考项目记忆）
+      # 注意：
+      # 1. 使用整个目录 'dist' 而非 glob 'dist/*'，避免 drone-scp 路径结构错误（参考项目记忆）
+      # 2. 不使用 rm:true（会删整个 target 目录导致 scp 失败），改用 overwrite:true 覆盖同名文件
+      # 3. 开启 debug:true 便于定位传输失败的具体原因
       - name: Upload frontend to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -97,8 +107,9 @@ jobs:
           port: 22
           source: 'dist'
           target: '/home/ubuntu/frontend-dist'
-          rm: true
+          overwrite: true
           strip_components: 1
+          debug: true
 
       # ============ 上传 docker-compose 配置文件到服务器 ============
       # 注意：strip_components=0 表示保留 .devcontainer 目录层级，最终路径为 /home/ubuntu/main-monitor/.devcontainer/
@@ -111,8 +122,9 @@ jobs:
           port: 22
           source: '.devcontainer'
           target: '/home/ubuntu/main-monitor'
-          rm: true
+          overwrite: true
           strip_components: 0
+          debug: true
 
       # ============ 在服务器上登录 ACR 并拉取镜像 ============
       - name: Deploy to Server
