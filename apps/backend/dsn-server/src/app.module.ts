@@ -11,7 +11,12 @@ import { SpanModule } from './modules/span/span.module'
 @Module({
   imports: [
     // forRoot 和 forRootAsync 都是用于在应用启动时加载配置文件的，区别是 forRoot 是同步加载，而 forRootAsync 是异步加载
-    ConfigModule.forRoot({ load: [databaseConfig] }),
+    // envFilePath 明确指定 .env 位置；生产环境无 .env 时静默跳过，用环境变量或默认值
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', 'apps/backend/dsn-server/.env'],
+      load: [databaseConfig],
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule], // 引入 ConfigModule 模块，用于获取配置文件中的数据库配置
       // useFactory 是一个工厂函数，用于创建 TypeOrmModule 实例，返回值是一个 TypeOrmModuleOptions 对象
@@ -21,9 +26,11 @@ import { SpanModule } from './modules/span/span.module'
     AuthModule,
     SpanModule,
     ClickhouseModule.forRoot({
-      url: 'http://localhost:8123',
-      username: 'default',
-      password: 'ningzhiClickhouse',
+      // 从环境变量读取，默认用 Docker 服务名（生产环境）
+      // 本地开发时在 .env 设置 CLICKHOUSE_HOST=localhost
+      url: `http://${process.env.CLICKHOUSE_HOST || 'ningzhi-monitor-clickhouse'}:8123`,
+      username: process.env.CLICKHOUSE_USERNAME || 'default',
+      password: process.env.CLICKHOUSE_PASSWORD || 'ningzhiClickhouse',
     }),
   ],
   providers: [],

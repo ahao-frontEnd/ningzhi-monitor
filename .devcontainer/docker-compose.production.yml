@@ -19,6 +19,20 @@ services:
       - ningzhi-monitor-kafka
     restart: unless-stopped
 
+  # dsn-server 服务 - SDK 数据上报服务
+  # 镜像路径通过环境变量注入，确保与 CI/CD 推送时一致
+  ningzhi-monitor-dsn-server:
+    image: ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-dsn-server:latest
+    container_name: ningzhi-monitor-dsn-server
+    ports:
+      - 8082:8080
+    depends_on:
+      - ningzhi-monitor-postgresql
+      - ningzhi-monitor-redis
+      - ningzhi-monitor-clickhouse
+      - ningzhi-monitor-kafka
+    restart: unless-stopped
+
   # Caddy 反向代理
   ningzhi-monitor-caddy:
     image: caddy:latest

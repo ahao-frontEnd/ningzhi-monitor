@@ -33,6 +33,14 @@ jobs:
           # 镜像路径使用 ACR_NAMESPACE（必须全小写），不能用 ACR_USERNAME（可能含大写）
           tags: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-server:latest
 
+      - name: Build and push dsn-server image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/backend/dsn-server/Dockerfile
+          push: true
+          tags: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-dsn-server:latest
+
       # ============ 构建前端 ============
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -133,9 +141,11 @@ jobs:
             export ACR_REGISTRY=${{ secrets.ACR_REGISTRY }}
             export ACR_NAMESPACE=${{ secrets.ACR_NAMESPACE }}
             echo "镜像路径: ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-server:latest"
+            echo "dsn-server 镜像路径: ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-dsn-server:latest"
 
             echo "==== 4. 拉取最新后端镜像 ===="
             docker pull ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-server:latest
+            docker pull ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-dsn-server:latest
 
             echo "==== 5. 确保基础设施运行 ===="
             cd /home/ubuntu/main-monitor
@@ -153,6 +163,12 @@ jobs:
               --no-deps \
               --force-recreate \
               ningzhi-monitor-server
+
+            echo "==== 6.1 重启 dsn-server 服务 ===="
+            docker compose -f .devcontainer/docker-compose.production.yml up -d \
+              --no-deps \
+              --force-recreate \
+              ningzhi-monitor-dsn-server
 
             echo "==== 7. 重建 Caddy 容器（加载最新前端文件）===="
             # 必须用 --force-recreate 重建 Caddy，否则不会重新挂载前端目录

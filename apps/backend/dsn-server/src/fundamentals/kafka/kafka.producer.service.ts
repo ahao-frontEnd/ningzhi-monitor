@@ -25,7 +25,7 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
   constructor() {
     this.kafka = new Kafka({
       clientId: 'ningzhi-monitor-dsn',
-      brokers: [process.env.KAFKA_BROKERS || 'localhost:9094'],
+      brokers: [process.env.KAFKA_BROKERS || 'ningzhi-monitor-kafka:9092'],
     })
   }
 
@@ -46,7 +46,7 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
         idempotent: true, // 幂等生产者，避免重试导致重复消息
       })
       await this.producer.connect()
-      this.logger.log(`Kafka producer connected (brokers=${process.env.KAFKA_BROKERS || 'localhost:9094'})`)
+      this.logger.log(`Kafka producer connected (brokers=${process.env.KAFKA_BROKERS || 'ningzhi-monitor-kafka:9092'})`)
     } catch (e) {
       this.logger.error(`Kafka producer connect failed: ${(e as Error).message}`)
       // 写模式为 kafka 时必须可连接，否则直接抛出阻断启动；写模式为 both 时仅 warn 即可

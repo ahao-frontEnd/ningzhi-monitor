@@ -29,6 +29,13 @@ monitor.ningzhi2.site {
 
         header +Cache-Control "max-age=0, private, must-revalidate"
 
+        # dsn-api 转发到 dsn-server（对应 vite.config.ts 的 /dsn-api 代理）
+        # 请求 /dsn-api/span → rewrite 成 /api/span → 转发到 dsn-server:8080
+        handle /dsn-api* {
+                rewrite ^/dsn-api(.*)$ /api$1
+                reverse_proxy ningzhi-monitor-dsn-server:8080
+        }
+
         handle /api* {
                 reverse_proxy ningzhi-monitor-server:8081
         }
