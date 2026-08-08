@@ -26,6 +26,10 @@ services:
     container_name: ningzhi-monitor-dsn-server
     ports:
       - 8082:8080
+    environment:
+      # 双写模式：Kafka 链路 + 直写 ClickHouse 兜底
+      # 即使 Kafka 链路出问题，direct 写入的数据也能被查询到
+      WRITE_MODE: both
     depends_on:
       - ningzhi-monitor-postgresql
       - ningzhi-monitor-redis

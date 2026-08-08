@@ -57,10 +57,18 @@ export class SpanService {
     }
   }
 
-  // 查询数据：统一通过 base_monitor_view 查询
-  // 新方案中 base_monitor_view 的来源已经从 base_monitor_storage 切换到 monitor_data
+  // 查询数据：同时查询 base_monitor_view（Kafka 管道落盘）和 base_monitor_storage（direct 写入兜底）
+  // 两层写入互不影响，UNION ALL 保证任何路径的数据都能被查到
   async span() {
     const query = `
+        SELECT
+            app_id,
+            event_type,
+            message,
+            info,
+            concat('Ningzhi ==> ', event_type) AS processed_message
+        FROM base_monitor_storage
+        UNION ALL
         SELECT * FROM base_monitor_view
     `
     const res = await this.clickHouseClient.query({ query })
@@ -70,9 +78,20 @@ export class SpanService {
 
   async bugs() {
     const query = `
+        SELECT * FROM (
+            SELECT
+                app_id,
+                event_type,
+                message,
+                info,
+                concat('Ningzhi ==> ', event_type) AS processed_message
+            FROM base_monitor_storage
+            WHERE event_type = 'error'
+            UNION ALL
             SELECT * FROM base_monitor_view
             WHERE event_type = 'error'
-        `
+        )
+    `
     const res = await this.clickHouseClient.query({
       query,
     })

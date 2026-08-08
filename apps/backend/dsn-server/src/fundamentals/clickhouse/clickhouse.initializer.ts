@@ -42,8 +42,18 @@ export class ClickhouseInitializer implements OnModuleInit {
 
     // ---------- 阶段 2：按依赖顺序幂等建表 / 视图 ----------
     // 注意：@clickhouse/client 的 command 一次执行一条 SQL，所以逐条跑。
-    // 顺序有依赖：kafka_monitor → monitor_data → kafka_to_monitor_data → base_monitor_view
+    // 顺序有依赖：base_monitor_storage → kafka_monitor → monitor_data → kafka_to_monitor_data → base_monitor_view
     const statements: string[] = [
+      // 2.0 兜底存储表（direct / both 模式下写入此表，结构与 monitor_data 一致）
+      //     如果 base_monitor_storage 不存在，WRITE_MODE=both 时 direct write 会抛 UNKNOWN_TABLE
+      `CREATE TABLE IF NOT EXISTS base_monitor_storage (
+          app_id     String,
+          event_type String,
+          message    String,
+          info       JSON
+      ) ENGINE = MergeTree()
+      ORDER BY tuple()`,
+
       // 2.1 Kafka 引擎表（消费者，虚拟表，不存储数据）
       //     注意：ClickHouse 运行在 Docker 容器内，必须用 Kafka 容器的服务名（PLAINTEXT listener），
       //     而不是 localhost:9094（那是宿主机视角的 EXTERNAL listener，容器内访问不到）。

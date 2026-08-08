@@ -9,7 +9,8 @@ import { setupCounter } from './counter.ts'
 import typescriptLogo from './typescript.svg'
 
 init({
-  dsn: 'http://localhost:8080/api/tracing/reactekgfT7',
+  // dsn: 'http://localhost:8080/api/tracing/reactekgfT7',
+  dsn: '/dsn-api/tracing/reactxrz84y',
   integrations: [],
 })
 
