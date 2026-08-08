@@ -15,6 +15,7 @@ hugeicons
 Hypernova
 kafkajs
 Kamil
+librdkafka
 metatype
 msgpackr
 Myśliwiec
