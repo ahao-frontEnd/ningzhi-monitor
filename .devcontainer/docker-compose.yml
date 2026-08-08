@@ -37,8 +37,10 @@ services:
             - CLICKHOUSE_USER=default          # 默认用户名
             - CLICKHOUSE_PASSWORD=ningzhiClickhouse  # 密码（建议生产环境使用更复杂的密码）
             - CLICKHOUSE_DATABASE=default      # 默认数据库
-        # volumes:
-        #     - ./clickhouse_data:/bitnami/clickhouse  # 数据持久化配置
+        volumes:
+            # 挂载自定义配置，禁用/限制系统日志表，防止撑满磁盘
+            # （历史教训：trace_log/text_log 默认无 TTL，10 天长到 25G+ 把 40G 系统盘撑爆）
+            - ./clickhouse/config.d/disable_logs.xml:/etc/clickhouse-server/config.d/disable_logs.xml:ro
 
     # ============ PostgreSQL 关系型数据库 ============
     # PostgreSQL 是一个功能强大的开源关系型数据库，适合存储结构化数据

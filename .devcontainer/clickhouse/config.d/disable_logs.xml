@@ -1,0 +1,38 @@
+<clickhouse>
+    <!-- 完全禁用 trace_log：记录查询执行轨迹，监控场景下价值低且增长极快 -->
+    <trace_log remove="remove" />
+
+    <!-- 完全禁用 text_log：ClickHouse 内部文本日志，容器场景用 docker logs 替代 -->
+    <text_log remove="remove" />
+
+    <!-- 禁用 OpenTelemetry trace（同样会产生大量数据） -->
+    <opentelemetry_span_log remove="remove" />
+
+    <!-- 禁用 query_thread_log（线程级查询日志，监控场景不需要） -->
+    <query_thread_log remove="remove" />
+
+    <!-- 禁用 query_views_log（VIEW 查询日志） -->
+    <query_views_log remove="remove" />
+
+    <!-- 保留但限制：metric_log 保留 7 天 -->
+    <metric_log>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+        <collect_interval_milliseconds>60000</collect_interval_milliseconds>
+        <ttl>interval DAY to expire=7</ttl>
+    </metric_log>
+
+    <!-- 保留但限制：asynchronous_metric_log 保留 7 天 -->
+    <asynchronous_metric_log>
+        <ttl>interval DAY to expire=7</ttl>
+    </asynchronous_metric_log>
+
+    <!-- 保留但限制：error_log 保留 30 天（错误日志更有价值，保留久一些） -->
+    <error_log>
+        <ttl>interval DAY to expire=30</ttl>
+    </error_log>
+
+    <!-- 保留但限制：query_log 保留 7 天（用于排查慢查询） -->
+    <query_log>
+        <ttl>interval DAY to expire=7</ttl>
+    </query_log>
+</clickhouse>
