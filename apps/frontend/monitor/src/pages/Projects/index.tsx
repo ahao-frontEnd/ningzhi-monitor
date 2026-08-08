@@ -103,6 +103,9 @@ export function Projects() {
                 <Link to="/project/1" className="font-semibold text-sm">
                   {application.name}
                 </Link>
+                <Button variant="outline" className="ml-6" asChild>
+                  <Link to={`/projects/${application.appId}/playground`}>模拟用户端上报数据</Link>
+                </Button>
               </CardTitle>
               <CardDescription className="text-xs">
                 缺陷：{application.bugs} | 事务：{application.transactions}

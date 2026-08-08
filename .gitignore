@@ -14,9 +14,6 @@ build
 dist-ssr
 *.local
 
-# TypeScript incremental build 缓存（机器生成，不应入库）
-*.tsbuildinfo
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -42,17 +42,20 @@ export class SpanService {
         format: 'JSONEachRow',
       })
       Logger.log(`[direct] Insert result: ${JSON.stringify(res.summary)}`)
+      return { success: true }
     }
 
     // --- 写 Kafka（kafka 模式 / both 模式） ---
     if (mode === 'kafka' || mode === 'both') {
       try {
         await this.kafkaProducer.sendTracking(payload)
+        return { success: true }
       } catch (e) {
         // kafka 模式下发送失败必须向上抛，让接口返回 5xx，避免静默数据丢失
         // both 模式下 Kafka 失败但 direct 已写入，则仅记录错误日志，不影响接口响应
         if (mode === 'kafka') throw e
         Logger.error(`[both] Kafka send failed, but direct write succeeded: ${(e as Error).message}`)
+        return { success: false }
       }
     }
   }
