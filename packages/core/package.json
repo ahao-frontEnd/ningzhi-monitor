@@ -17,6 +17,18 @@
       }
     }
   },
+  "files": [
+    "build",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahao-frontEnd/ningzhi-monitor.git",
+    "directory": "packages/core"
+  },
   "scripts": {
     "build:watch": "pnpm build:watch:transpile & pnpm build:watch:types",
     "build:watch:transpile": "tsup --watch",

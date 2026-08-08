@@ -465,11 +465,11 @@ importers:
   demos/vanilla:
     dependencies:
       '@ningzhi/monitor-sdk-browser':
-        specifier: workspace:*
-        version: link:../../packages/browser
+        specifier: 1.0.0
+        version: 1.0.0
       '@ningzhi/monitor-sdk-core':
-        specifier: workspace:*
-        version: link:../../packages/core
+        specifier: 1.0.0
+        version: 1.0.0
     devDependencies:
       typescript:
         specifier: 5.8.2
@@ -1826,6 +1826,15 @@ packages:
       reflect-metadata: ^0.1.13 || ^0.2.0
       rxjs: ^7.2.0
       typeorm: ^0.3.0
+
+  '@ningzhi/monitor-sdk-browser-utils@1.0.0':
+    resolution: {integrity: sha512-QBxt2UO7M9DsmmMqvblZNrauI/YrO/BdfyyIGR44iM1++jCmi+7z0OYHXnYsFfVq3gMRQuKPOdaF2/Tw9IiJsw==}
+
+  '@ningzhi/monitor-sdk-browser@1.0.0':
+    resolution: {integrity: sha512-9PUt5MueSw7xwFYkNbuRTfvAqXGyrwfSxKadu8n7VEghgD0QOuIXZkwbefnz9IqclXcF/c+IfPzB0MVQYNkR8g==}
+
+  '@ningzhi/monitor-sdk-core@1.0.0':
+    resolution: {integrity: sha512-74Ccwj6kZt642hRxB2y8tNwBjWw/FYIPgKwEgJ83yKQo6t8ndCkrNAnWaWA+BfTwl/a2ms4S4BJUZFaVf+ydjg==}
 
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
@@ -9231,6 +9240,17 @@ snapshots:
       rxjs: 7.8.1
       typeorm: 0.3.20(ioredis@5.11.1)(pg@8.13.0)(ts-node@10.9.2(@types/node@22.5.0)(typescript@6.0.3))
       uuid: 9.0.1
+
+  '@ningzhi/monitor-sdk-browser-utils@1.0.0':
+    dependencies:
+      '@ningzhi/monitor-sdk-core': 1.0.0
+
+  '@ningzhi/monitor-sdk-browser@1.0.0':
+    dependencies:
+      '@ningzhi/monitor-sdk-browser-utils': 1.0.0
+      '@ningzhi/monitor-sdk-core': 1.0.0
+
+  '@ningzhi/monitor-sdk-core@1.0.0': {}
 
   '@noble/hashes@1.8.0': {}
 

@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ningzhi/monitor-sdk-core": "workspace:*",
-    "@ningzhi/monitor-sdk-browser": "workspace:*"
+    "@ningzhi/monitor-sdk-core": "1.0.0",
+    "@ningzhi/monitor-sdk-browser": "1.0.0"
   },
   "devDependencies": {
     "typescript": "5.8.2",
