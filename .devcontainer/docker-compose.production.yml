@@ -6,11 +6,30 @@ include:
   
 services:
   # 后端服务 - 使用 ACR 预构建镜像
+  # 镜像路径通过环境变量注入，确保与 CI/CD 推送时一致
   ningzhi-monitor-server:
-    image: registry.cn-hangzhou.aliyuncs.com/<你的阿里云账号>/ningzhi-monitor-server:latest
+    image: ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-server:latest
     container_name: ningzhi-monitor-server
     ports:
       - 8081:8081
+    depends_on:
+      - ningzhi-monitor-postgresql
+      - ningzhi-monitor-redis
+      - ningzhi-monitor-clickhouse
+      - ningzhi-monitor-kafka
+    restart: unless-stopped
+
+  # dsn-server 服务 - SDK 数据上报服务
+  # 镜像路径通过环境变量注入，确保与 CI/CD 推送时一致
+  ningzhi-monitor-dsn-server:
+    image: ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-dsn-server:latest
+    container_name: ningzhi-monitor-dsn-server
+    ports:
+      - 8082:8080
+    environment:
+      # 双写模式：Kafka 链路 + 直写 ClickHouse 兜底
+      # 即使 Kafka 链路出问题，direct 写入的数据也能被查询到
+      WRITE_MODE: both
     depends_on:
       - ningzhi-monitor-postgresql
       - ningzhi-monitor-redis
@@ -27,9 +46,13 @@ services:
       - 443:443
     volumes:
       - ./caddy:/etc/caddy
-      - /home/ningzhi/frontend-dist:/app/frontend/monitor/dist
+      - /home/ubuntu/frontend-dist:/app/frontend/monitor/dist
       - caddy_data:/data
       - caddy_config:/config
+      # 无代码可视化平台前端资源挂载
+      - /home/ubuntu/builder-dist:/app/frontend/builder/dist:ro # read only
+      # AI Chat 平台 前端资源挂载
+      - /home/ubuntu/chat-dist:/app/frontend/chat/dist:ro # read only
     restart: unless-stopped
 
 volumes:

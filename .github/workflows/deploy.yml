@@ -30,7 +30,16 @@ jobs:
           context: .
           file: apps/backend/monitor/Dockerfile
           push: true
-          tags: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_USERNAME }}/ningzhi-monitor-server:latest
+          # 镜像路径使用 ACR_NAMESPACE（必须全小写），不能用 ACR_USERNAME（可能含大写）
+          tags: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-server:latest
+
+      - name: Build and push dsn-server image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/backend/dsn-server/Dockerfile
+          push: true
+          tags: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-dsn-server:latest
 
       # ============ 构建前端 ============
       - name: Set up Node.js
@@ -70,18 +79,42 @@ jobs:
           name: frontend-dist
           path: dist
 
-      # ============ 上传前端文件到服务器 ============
-      - name: Upload frontend to server
-        uses: appleboy/scp-action@v0.1.7
+      # ============ 配置 SSH agent（供 rsync 使用）============
+      # 放弃 appleboy/scp-action（drone-scp v1.6.14 持续报 status 1 且错误信息被 mask 成 ***），
+      # 改用 webfactory/ssh-agent + rsync，更稳定且错误信息清晰
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          source: 'dist/*'
-          target: '/home/ningzhi/frontend-dist/'
-          rm: true
-          strip_components: 1
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p 22 -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      # ============ 确保服务器目标目录存在 ============
+      - name: Ensure target directories exist on server
+        run: |
+          ssh -p 22 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            'mkdir -p /home/ubuntu/frontend-dist /home/ubuntu/main-monitor/.devcontainer && echo OK'
+
+      # ============ 同步前端文件到服务器（rsync）============
+      # rsync --delete 等价于清理旧文件，但不会删除整个目录导致传输失败
+      # 注意 source 末尾的 / ：dist/ 表示同步目录内容，dist 表示同步目录本身
+      - name: Sync frontend to server
+        run: |
+          rsync -avz --delete \
+            -e "ssh -p 22" \
+            dist/ \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/ubuntu/frontend-dist/
+
+      # ============ 同步 docker-compose 配置到服务器（rsync）============
+      - name: Sync compose configs to server
+        run: |
+          rsync -avz --delete \
+            -e "ssh -p 22" \
+            .devcontainer/ \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/ubuntu/main-monitor/.devcontainer/
 
       # ============ 在服务器上登录 ACR 并拉取镜像 ============
       - name: Deploy to Server
@@ -92,14 +125,70 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            # 登录 ACR（服务器首次需要，之后会缓存）
+            set -e
+
+            echo "==== 1. 登录 ACR ===="
             docker login ${{ secrets.ACR_REGISTRY }} \
               -u ${{ secrets.ACR_USERNAME }} \
               -p ${{ secrets.ACR_PASSWORD }}
 
-            # 拉取最新镜像
-            docker pull ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_USERNAME }}/ningzhi-monitor-server:latest
+            echo "==== 2. 检查部署目录 ===="
+            mkdir -p /home/ubuntu/main-monitor
+            echo '--- .devcontainer 内容 ---'
+            ls -la /home/ubuntu/main-monitor/.devcontainer/ 2>/dev/null || echo '.devcontainer 不存在'
 
-            # 重新启动服务
-            cd /home/ningzhi/main-monitor
-            docker compose -f .devcontainer/docker-compose.production.yml up -d
+            echo "==== 3. 导出环境变量（供 docker compose 使用）===="
+            export ACR_REGISTRY=${{ secrets.ACR_REGISTRY }}
+            export ACR_NAMESPACE=${{ secrets.ACR_NAMESPACE }}
+            echo "镜像路径: ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-server:latest"
+            echo "dsn-server 镜像路径: ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-dsn-server:latest"
+
+            echo "==== 4. 拉取最新后端镜像 ===="
+            docker pull ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-server:latest
+            docker pull ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-dsn-server:latest
+
+            echo "==== 5. 确保基础设施运行 ===="
+            cd /home/ubuntu/main-monitor
+            # 启动所有基础设施（如果未运行）
+            docker compose -f .devcontainer/docker-compose.production.yml up -d \
+              ningzhi-monitor-postgresql \
+              ningzhi-monitor-redis \
+              ningzhi-monitor-clickhouse \
+              ningzhi-monitor-kafka
+            # 等数据库就绪
+            sleep 15
+
+            echo "==== 6. 重启后端服务 ===="
+            docker compose -f .devcontainer/docker-compose.production.yml up -d \
+              --no-deps \
+              --force-recreate \
+              ningzhi-monitor-server
+
+            echo "==== 6.1 重启 dsn-server 服务 ===="
+            docker compose -f .devcontainer/docker-compose.production.yml up -d \
+              --no-deps \
+              --force-recreate \
+              ningzhi-monitor-dsn-server
+
+            echo "==== 7. 重建 Caddy 容器（加载最新前端文件）===="
+            # 必须用 --force-recreate 重建 Caddy，否则不会重新挂载前端目录
+            docker compose -f .devcontainer/docker-compose.production.yml up -d \
+              --no-deps \
+              --force-recreate \
+              ningzhi-monitor-caddy
+
+            echo "==== 8. 验证前端文件挂载 ===="
+            echo '--- 宿主机前端文件 ---'
+            ls -la /home/ubuntu/frontend-dist/ | head -10
+            echo '--- 容器内前端文件 ---'
+            docker exec ningzhi-monitor-caddy ls -la /app/frontend/monitor/dist/ | head -10
+            echo '--- 检查新文案 ---'
+            docker exec ningzhi-monitor-caddy grep -rl "test cicd" /app/frontend/monitor/dist/assets/ 2>/dev/null \
+              && echo '✅ 新文案已生效' \
+              || echo '⚠️ 警告: 新文案未生效，请检查挂载'
+
+            echo "==== 9. 部署完成，查看容器状态 ===="
+            docker compose -f .devcontainer/docker-compose.production.yml ps
+
+            echo "==== 9. 清理旧镜像 ===="
+            docker image prune -f --filter "until=24h" || true

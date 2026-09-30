@@ -58,10 +58,19 @@ export function Login() {
         })
         setInputType('login')
       }
-    } catch {
+    } catch (err) {
+      // @ts-expect-error res is not defined
+      const msg = err?.response?.data?.message
+      if (inputType === 'register') {
+        toast({
+          variant: 'destructive',
+          title: `注册失败，${msg}`,
+        })
+        return
+      }
       toast({
         variant: 'destructive',
-        title: '登录失败，请稍后重试',
+        title: `登录失败，用户名或密码错误，请重试`,
       })
     }
   }
@@ -86,7 +95,7 @@ export function Login() {
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
-            <p className="text-4xl mb-8">&ldquo;天行健，君子以自强不息&rdquo;</p>
+            <p className="text-4xl mb-8">&ldquo;Test CICD 0806 &rdquo;</p>
             <p className="text-lg">&ldquo;登录监控平台，查看系统状态&rdquo;</p>
             <footer className="text-sm">@Ningzhi</footer>
           </blockquote>
