@@ -30,6 +30,9 @@ jobs:
           context: .
           file: apps/backend/monitor/Dockerfile
           push: true
+          # provenance 只是构建来源元数据，不影响镜像运行 ，关闭后可以避免 ACR 报错
+          # ACR 不支持 OCI attestation 清单（application/vnd.oci.empty.v1+json），必须关闭 provenance
+          provenance: false
           # 镜像路径使用 ACR_NAMESPACE（必须全小写），不能用 ACR_USERNAME（可能含大写）
           tags: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-server:latest
 
@@ -39,6 +42,7 @@ jobs:
           context: .
           file: apps/backend/dsn-server/Dockerfile
           push: true
+          provenance: false
           tags: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ningzhi-monitor-dsn-server:latest
 
       # ============ 构建前端 ============
