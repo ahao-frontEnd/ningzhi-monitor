@@ -95,7 +95,7 @@ export function Login() {
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
-            <p className="text-4xl mb-8">&ldquo;Test CICD 0806 &rdquo;</p>
+            <p className="text-4xl mb-8">&ldquo;Test CICD 1007 &rdquo;</p>
             <p className="text-lg">&ldquo;登录监控平台，查看系统状态&rdquo;</p>
             <footer className="text-sm">@Ningzhi</footer>
           </blockquote>

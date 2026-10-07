@@ -124,3 +124,21 @@ chat.ningzhi2.site {
         file_server
     }
 }
+
+# Ningzhi UI 组件库文档站（dumi 多页静态站）
+ui.ningzhi2.site {
+    encode zstd gzip
+
+    header +Cache-Control "max-age=0, private, must-revalidate"
+
+    root * /app/frontend/uiComponents/docs-dist
+
+    handle {
+        # dumi 是 多页应用（MPA） ，每个路由都会生成一个独立的`index.html`
+        # dumi 每个路由目录下都有 index.html，file_server 会自动匹配目录索引
+        # 顺序：精确文件 → 目录 index.html → 回退到首页
+        try_files {path} {path}/index.html /index.html
+        file_server
+    }
+}
+

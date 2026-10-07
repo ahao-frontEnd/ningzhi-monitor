@@ -3,7 +3,7 @@
 
 include:
   - docker-compose.yml
-  
+
 services:
   # 后端服务 - 使用 ACR 预构建镜像
   # 镜像路径通过环境变量注入，确保与 CI/CD 推送时一致
@@ -53,6 +53,8 @@ services:
       - /home/ubuntu/builder-dist:/app/frontend/builder/dist:ro # read only
       # AI Chat 平台 前端资源挂载
       - /home/ubuntu/chat-dist:/app/frontend/chat/dist:ro # read only
+      # Ningzhi UI 组件库文档站挂载
+      - /home/ubuntu/my-apps/ningzhi-ui:/app/frontend/uiComponents/docs-dist:ro # read only
     restart: unless-stopped
 
 volumes:
