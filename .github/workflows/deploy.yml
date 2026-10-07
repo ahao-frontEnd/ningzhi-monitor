@@ -151,6 +151,13 @@ jobs:
             docker pull ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-server:latest
             docker pull ${ACR_REGISTRY}/${ACR_NAMESPACE}/ningzhi-monitor-dsn-server:latest
 
+            echo "==== 4.5 部署前体检（磁盘/内存/容器状态）===="
+            df -h / || true
+            free -h || true
+            docker ps -a --format 'table {{.Names}}\t{{.Status}}' || true
+            echo '--- Kafka 健康检查详情（含最近探针输出，用于诊断 unhealthy 根因）---'
+            docker inspect ningzhi-monitor-kafka --format '{{json .State.Health}}' || true
+
             echo "==== 5. 确保基础设施运行 ===="
             cd /home/ubuntu/main-monitor
             # 启动所有基础设施（如果未运行）

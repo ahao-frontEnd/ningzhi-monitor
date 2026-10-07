@@ -23,11 +23,13 @@ services:
             - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER # 控制器节点监听端口，用于协调集群操作，
             - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT # 普通节点监听端口，用于接收消息，
         healthcheck:                           # 健康检查：用于判断 Kafka 是否完全启动（供 kafka-init 等待）
+            # 注意：kafka-topics.sh 每次探针都要启动一个新 JVM（约 2-4s），
+            # 部署时服务器负载高，5s 超时容易被误判成 unhealthy，放宽到 15s
             test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
             interval: 5s
-            timeout: 5s
+            timeout: 15s
             retries: 20
-            start_period: 10s
+            start_period: 30s
         # volumes:                              # 数据持久化：把容器内数据保存到宿主机
         #     - ./kafka_data:/bitnami/kafka/data  # 注释掉的是数据持久化配置，启用后可防止数据丢失
 
